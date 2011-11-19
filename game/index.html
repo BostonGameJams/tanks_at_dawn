@@ -49,8 +49,10 @@
   <script src="mantra/config.js"></script>
 
   <script src="games/tanks_at_dawn/tanks_at_dawn.js"></script>
-  <script src="games/8by5/entities/defender.js"></script>
+  <script src="games/tanks_at_dawn/entities/tank.js"></script>
   <script src="games/8by5/effects/defender_bullet.js"></script>
+  <script src="games/tanks_at_dawn/effects/visibility_cloak.js"></script>
+  <script src="games/tanks_at_dawn/effects/drawn_map.js"></script>
 </head>
 <body id="mantra" class="games" onload="">
   <h1>Tanks at Dawn</h1>
@@ -66,5 +68,9 @@
     }
 
     launchGame(eval(geturlparameter('game') || 'Tanks'));
+
+    $('<img src="/game/games/tanks_at_dawn/images/DunanGlen.jpg">')
+      .css({ position: 'absolute', top: '16px', width: '512px', zIndex: '-1' })
+      .prependTo('#game_holder');
   </script>
 </body>

@@ -6,11 +6,11 @@ class Mantra.Canvas
     $('<canvas>')
       .attr(
         id:     'game_surface'
-        width:  '800'
-        height: '600'
+        width:  '512'
+        height: '512'
       )
       .css(
-        'background-color': 'black'
+        'background-color': 'transparent'
         margin:             '0px auto'
         display:            'block'
       )

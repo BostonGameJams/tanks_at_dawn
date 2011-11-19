@@ -18,6 +18,7 @@ body.games {
     margin-top: 10px;
     margin-bottom: 5px; }
   body.games #game_holder {
+    position: relative;
     padding: 15px;
     border: 1px solid #cccccc;
     display: inline-block;
@@ -35,7 +36,7 @@ body.games {
       background-color: black;
       margin: 0px auto;
       display: block;
-      padding: 16px 20px;
+/*      padding: 16px 20px;*/
         padding-bottom: 0px;
         padding-right: 0px; }
   body.games ::-moz-selection, body.games ::selection {
