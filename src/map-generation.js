@@ -56,10 +56,10 @@ window.onload = function() {
 
     for ( var i = 1; i < points.length - 1; ++i ) {
       var
-      // height of the terrain at the line-of-sight point
-      pointHeight = pix[ 4 * ( points[ i ].y * heightmap.width +  points[ i ].x ) ],
-      // height of the line-of-sight point
-      sightHeight = tankHeight + i * dH;
+        // height of the terrain at the line-of-sight point
+        pointHeight = pix[ 4 * ( points[ i ].y * heightmap.width +  points[ i ].x ) ],
+        // height of the line-of-sight point
+        sightHeight = tankHeight + i * dH;
 
       if ( pointHeight > sightHeight ) {
         return false;
