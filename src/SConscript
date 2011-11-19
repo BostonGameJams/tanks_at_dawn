@@ -1,0 +1,14 @@
+Import('env')
+
+env = env.Clone()
+
+compiled_files = [
+    # env.Uglify('js-file'),
+    ]
+
+static_files = [
+    'index.html',
+    ]
+
+env.Install(env['EXPORTDIR'], static_files)
+env.Install(env['EXPORTDIR'], compiled_files)
