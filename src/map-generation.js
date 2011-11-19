@@ -30,9 +30,10 @@ window.onload = function() {
   }
 
   function isTargetVisible( heightmap, tankX, tankY, targetX, targetY ) {
+    var eyeHeight = 1;
     var pix = heightmap.data;
-    var tankHeight = pix[ 4 * ( tankY * heightmap.width + tankX ) ];
-    var targetHeight = pix[ 4 * ( targetY * heightmap.width + targetX ) ];
+    var tankHeight = pix[ 4 * ( tankY * heightmap.width + tankX ) ] + eyeHeight;
+    var targetHeight = pix[ 4 * ( targetY * heightmap.width + targetX ) ] + eyeHeight;
 
     var points = bresenhamLine( tankX, tankY, targetX, targetY );
     var dH = ( targetHeight - tankHeight ) / ( points.length - 1 );
