@@ -53,7 +53,7 @@ window.onload = function() {
     for ( var i = 1; i < points.length - 1; ++i ) {
       var
       // height of the terrain at the line-of-sight point
-      pointHeight = pix[ 4 * ( points[i].y * heightmap.width +  points[i].x ) ],
+      pointHeight = pix[ 4 * ( points[ i ].y * heightmap.width +  points[ i ].x ) ],
       // height of the line-of-sight point
       sightHeight = tankHeight + i * dH;
 
@@ -84,29 +84,38 @@ window.onload = function() {
   var outputCtx = outputCanvas.getContext( '2d' );
 
   var heightmap;
+  var reticule = ctx.createImageData( 3, 3 );
+  for ( var index = 0; index < reticule.width * reticule.height; ++index ) {
+    reticule.data[ 4 * index ] = 255;
+    reticule.data[ 4 * index + 3 ] = 255;
+  };
 
   var img = new Image();
   img.onload = function() {
     ctx.drawImage( img, 0, 0 );
 
     heightmap = ctx.getImageData( 0, 0, 256, 256 );
+
+    canvas.addEventListener( 'click', function( e ) {
+      var x, y;
+      if ( e.pageX || e.pageY ) {
+        x = e.pageX;
+        y = e.pageY;
+      } else {
+        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+      }
+
+      x -= canvas.offsetLeft;
+      y -= canvas.offsetTop;
+
+      ctx.drawImage( img, 0, 0 );
+      ctx.putImageData( reticule, x - 1, y - 1 );
+
+      var visibilityMap = createVisibilityMap( heightmap, x, y );
+      outputCtx.putImageData( visibilityMap, 0, 0 );
+      outputCtx.putImageData( reticule, x - 1, y - 1 );
+    }, false );
   };
   img.src = 'heightmap.png';
-
-  canvas.addEventListener( 'click', function( e ) {
-    var x, y;
-    if ( e.pageX || e.pageY ) {
-      x = e.pageX;
-      y = e.pageY;
-    } else {
-      x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-      y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-    }
-
-    x -= canvas.offsetLeft;
-    y -= canvas.offsetTop;
-
-    var visibilityMap = createVisibilityMap( heightmap, x, y );
-    outputCtx.putImageData( visibilityMap, 0, 0 );
-  }, false );
 };
