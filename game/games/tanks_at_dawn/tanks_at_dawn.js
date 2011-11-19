@@ -14,7 +14,10 @@ Tanks = (function() {
     this.player_name = 'Player 1';
     Tanks.__super__.constructor.call(this, _.defaults(this.options, {
       assets: {
-        sounds: []
+        root_path: '../game/games/8by5/',
+        sounds: {
+          'bullet_shot': 'simple_shot.mp3'
+        }
       },
       screens: {
         loading: 'preset',
@@ -83,8 +86,8 @@ Tanks = (function() {
   Tanks.prototype.configureEngine = function() {
     return $logger.levels({
       global: 'debug',
-      sound: 'warn',
-      assets: 'info',
+      sound: 'debug',
+      assets: 'debug',
       input: 'info',
       game: 'info'
     });

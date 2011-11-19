@@ -33,4 +33,4 @@ class Mantra.Defender extends Mantra.Entity
       y:             @y
       angle:         Math.atan2 @game.mouse.y - @y, @game.mouse.x - @x
       radial_offset: @radius + 3
-    # AssetManager.playSound 'bullet_shot'
+    AssetManager.playSound 'bullet_shot'

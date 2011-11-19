@@ -46,12 +46,13 @@ Mantra.Defender = (function() {
     return this.y = coords.y;
   };
   Defender.prototype.shoot = function() {
-    return this.game.screens.game.add(new EBF.DefenderBullet(this.game, {
+    this.game.screens.game.add(new EBF.DefenderBullet(this.game, {
       x: this.x,
       y: this.y,
       angle: Math.atan2(this.game.mouse.y - this.y, this.game.mouse.x - this.x),
       radial_offset: this.radius + 3
     }));
+    return AssetManager.playSound('bullet_shot');
   };
   return Defender;
 })();

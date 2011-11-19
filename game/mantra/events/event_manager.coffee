@@ -1,3 +1,4 @@
+# window.Mantra = {}
 class Mantra.EventManager
   constructor: ->
     @types = { 'alien::spawn' : [] }

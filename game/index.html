@@ -12,8 +12,14 @@
   <script src='lib/shims.js'></script>
   <script src='lib/js-finite-state-machine.js'></script>
   <script src='lib/helpers.js'></script>
+  <script src='lib/buzz.js'></script>
 
   <script src="mantra/util/core.js"></script>
+
+  <script src="mantra/audio/audio_engine.js"></script>
+  <script src="mantra/audio/buzz_audio_engine.js"></script>
+  <script src="lib/buzz.js"></script>
+
   <script src="mantra/util/asset_manager.js"></script>
   <script src="mantra/util/audio_manager.js"></script>
   <script src="mantra/util/canvas.js"></script>
@@ -55,10 +61,10 @@
     window.game = null;
 
     function launchGame(game_name) {
-      game_launcher = GameLauncher.launchInto(game_name, Mantra.Canvas.j_createCanvas().appendTo('#game_holder').get(0))
+      game_launcher = GameLauncher.launchInto(game_name, Mantra.Canvas.j_createCanvas().appendTo('#game_holder').get(0));
       game = game_launcher.game;
     }
 
-    launchGame(eval(geturlparameter('game') ||'EightByFive'));
+    launchGame(eval(geturlparameter('game') || 'Tanks'));
   </script>
 </body>

@@ -1,6 +1,6 @@
 define [
-  'cs!/mantra/mantra/levels/level'
-  'cs!/mantra/mantra/levels/level_manager'
-  'cs!/mantra/mantra/levels/map'
+  'order!mantra/levels/level'
+  'order!mantra/levels/level_manager'
+  'order!mantra/levels/map'
 ], (util) ->
   console.log 'Levels are loaded!'

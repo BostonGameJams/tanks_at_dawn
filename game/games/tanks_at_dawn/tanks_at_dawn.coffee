@@ -4,8 +4,9 @@ class Tanks extends Mantra.Game
 
     super _.defaults @options,
       assets:
+        root_path: '../game/games/8by5/'
         sounds:
-          []#'bullet_shot' : 'games/8by5/audio/simple_shot.mp3'
+          'bullet_shot' : 'simple_shot.mp3'
 
       screens:
         loading: 'preset'
@@ -62,8 +63,8 @@ class Tanks extends Mantra.Game
     # Levels, in increasing order of verbosity: off, error, warn, info, debug
     $logger.levels
       global: 'debug'
-      sound:  'warn'
-      assets: 'info'
+      sound:  'debug'
+      assets: 'debug'
       input:  'info'
       game:   'info'
 

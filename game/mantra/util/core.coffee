@@ -3,9 +3,10 @@
 root = global ? window
 root.root = root
 root.asset_path = '/mantra/'
-
 root.Mantra = {}
 root.EBF = {}
+
+console.log "Mantra:", Mantra
 
 # Setup our handy-dandy "global" variables (for convenience purposes)
 root.$em            = null

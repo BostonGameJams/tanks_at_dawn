@@ -1,10 +1,10 @@
 define [
-  'cs!/mantra/mantra/entities/entity'
-  'cs!/mantra/mantra/entities/sprite_entity'
-  'cs!/mantra/mantra/entities/map_entity'
-  'cs!/mantra/mantra/entities/screen'
-  'cs!/mantra/mantra/entities/custom_draw_actor'
-  'cs!/mantra/mantra/entities/ui_pane'
+  'order!mantra/entities/entity'
+  'order!mantra/entities/sprite_entity'
+  'order!mantra/entities/map_entity'
+  'order!mantra/entities/screen'
+  'order!mantra/entities/custom_draw_actor'
+  'order!mantra/entities/ui_pane'
 ], (util) ->
   console.log 'Entities are loaded!'
 

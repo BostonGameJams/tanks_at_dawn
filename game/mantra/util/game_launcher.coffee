@@ -13,6 +13,16 @@ class GameLauncher
     @configureEngine()
 
     console.log 'Initializing game...'
+
+    # Setup the sound manager
+    if soundManager?
+      AssetManager.configureSoundManager
+        engine:     'soundmanager'
+        asset_path: root.asset_path
+    else
+      AssetManager.configureSoundManager
+        engine:     'buzz'
+        asset_path: root.asset_path
     $logger.assets.debug "# assets: #{assets.images.length}"
 
     Mantra.KeyManager.capture_keypresses @game
@@ -23,6 +33,8 @@ class GameLauncher
     @addImage id, "#{root_asset_path}images/#{path}" for id, path of assets.images
     @addSound id, "#{root_asset_path}audio/#{path}"  for id, path of assets.sounds
     @addSound id, "#{root_asset_path}audio/#{path}"  for id, path of assets.music
+    # $logger.assets.debug "assets added: #{assets.images.length + assets.sounds.length + assets.music.length}"
+    $logger.assets.debug "assets added"
 
   configureEngine: ->
     root.$em            = Mantra.EventManager.instance()
@@ -33,8 +45,7 @@ class GameLauncher
 
     @game.configureEngine()
 
-  launch: ->
-    AssetManager.downloadAll (=> @start())
+  launch: -> AssetManager.downloadAll (=> @start())
 
   start: ->
     console.log 'Assets loaded. Launching game...'
