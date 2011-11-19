@@ -3,11 +3,12 @@ Import('env')
 env = env.Clone()
 
 compiled_files = [
-    # env.Uglify('js-file'),
+    env.Uglify('map-generation'),
     ]
 
 static_files = [
-    'index.html',
+    'map-generation.html',
+    'heightmap.png',
     ]
 
 env.Install(env['EXPORTDIR'], static_files)
