@@ -74,7 +74,7 @@ window.onload = function() {
     var pix = visibilityMap.data;
     for ( var i = 0; i < heightmap.width; ++i ) {
       for ( var j = 0; j < heightmap.height; ++j ) {
-        pix[ 4 * ( j * visibilityMap.width + i ) + 3 ] = isTargetVisible( heightmap, tankX, tankY, i, j ) ? 255 : 0;
+        pix[ 4 * ( j * visibilityMap.width + i ) + 3 ] = isTargetVisible( heightmap, tankX, tankY, i, j ) ? 0 : 255;
       }
     }
 
@@ -118,8 +118,8 @@ window.onload = function() {
 
       var visibilityMap = createVisibilityMap( heightmap, x, y );
       outputCtx.putImageData( visibilityMap, 0, 0 );
-      var outputP = el( 'base64-output' );
-      outputP.innerHTML = outputCanvas.toDataURL( 'image/png' );
+      var outputAnchor = el( 'base64-output' );
+      outputAnchor.href = outputCanvas.toDataURL( 'image/png' );
       outputCtx.putImageData( reticule, x - 1, y - 1 );
     }, false );
   };
