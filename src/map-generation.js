@@ -71,27 +71,30 @@ window.onload = function() {
   var outputCanvas = document.getElementById( 'output-canvas' );
   var outputCtx = outputCanvas.getContext( '2d' );
 
+  var heightmap;
+
   var img = new Image();
   img.onload = function() {
     ctx.drawImage( img, 0, 0 );
 
-    var heightmap = ctx.getImageData( 0, 0, 256, 256 );
-
-    var i = 0, j = 0;
-    window.setInterval(function() {
-      var visibilityMap = createVisibilityMap( heightmap, i, j );
-
-      outputCtx.putImageData( visibilityMap, 0, 0 );
-
-      ++i;
-      if ( i == heightmap.width ) {
-        i = 0;
-        ++j;
-        if ( j == heightmap.height ) {
-          j = 0;
-        }
-      }
-    }, 250);
+    heightmap = ctx.getImageData( 0, 0, 256, 256 );
   };
   img.src = 'heightmap.png';
+
+  canvas.addEventListener( 'click', function( e ) {
+    var x, y;
+    if ( e.pageX || e.pageY ) {
+      x = e.pageX;
+      y = e.pageY;
+    } else {
+      x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+      y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    }
+
+    x -= canvas.offsetLeft;
+    y -= canvas.offsetTop;
+
+    var visibilityMap = createVisibilityMap( heightmap, x, y );
+    outputCtx.putImageData( visibilityMap, 0, 0 );
+  }, false );
 };
