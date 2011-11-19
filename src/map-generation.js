@@ -1,57 +1,57 @@
-function bresenhamLine( x0, y0, x1, y1 ) {
-  var
-    dx = Math.abs( x1 - x0 ),
-    dy = Math.abs( y1 - y0 ),
-    sx = x0 < x1 ? 1 : -1,
-    sy = y0 < y1 ? 1 : -1,
-    err = dx - dy,
-    points = [];
+window.onload = function() {
+  function bresenhamLine( x0, y0, x1, y1 ) {
+    var
+      dx = Math.abs( x1 - x0 ),
+      dy = Math.abs( y1 - y0 ),
+      sx = x0 < x1 ? 1 : -1,
+      sy = y0 < y1 ? 1 : -1,
+      err = dx - dy,
+      points = [];
 
-  while ( true ) {
-    points.push({ x: x0, y: y0 });
+    while ( true ) {
+      points.push({ x: x0, y: y0 });
 
-    if ( x0 === x1 && y0 === y1 ) {
-      return points;
-    }
+      if ( x0 === x1 && y0 === y1 ) {
+        return points;
+      }
 
-    var err2 = 2 * err;
+      var err2 = 2 * err;
 
-    if ( err2 > -dy ) {
-      err -= dy;
-      x0 += sx;
-    }
+      if ( err2 > -dy ) {
+        err -= dy;
+        x0 += sx;
+      }
 
-    if ( err2 < dx ) {
-      err += dx;
-      y0 += sy;
+      if ( err2 < dx ) {
+        err += dx;
+        y0 += sy;
+      }
     }
   }
-}
 
-function isTargetVisible( heightmap, tankX, tankY, targetX, targetY ) {
-  var pix = heightmap.data;
-  var tankHeight = pix[ 4 * ( tankY * heightmap.width + tankX ) ];
-  var targetHeight = pix[ 4 * ( targetY * heightmap.width + targetX ) ];
+  function isTargetVisible( heightmap, tankX, tankY, targetX, targetY ) {
+    var pix = heightmap.data;
+    var tankHeight = pix[ 4 * ( tankY * heightmap.width + tankX ) ];
+    var targetHeight = pix[ 4 * ( targetY * heightmap.width + targetX ) ];
 
-  var points = bresenhamLine( tankX, tankY, targetX, targetY );
-  var dH = ( targetHeight - tankHeight ) / ( points.length - 1 );
+    var points = bresenhamLine( tankX, tankY, targetX, targetY );
+    var dH = ( targetHeight - tankHeight ) / ( points.length - 1 );
 
-  for ( var i = 1; i < points.length - 1; ++i ) {
-    var
+    for ( var i = 1; i < points.length - 1; ++i ) {
+      var
       // height of the terrain at the line-of-sight point
       pointHeight = pix[ 4 * ( points[i].y * heightmap.width +  points[i].x ) ],
       // height of the line-of-sight point
       sightHeight = tankHeight + i * dH;
 
-    if ( pointHeight > sightHeight ) {
-      return false;
+      if ( pointHeight > sightHeight ) {
+        return false;
+      }
     }
+
+    return true;
   }
 
-  return true;
-}
-
-window.onload = function() {
   function createVisibilityMap( heightmap, tankX, tankY ) {
     var visibilityMap = ctx.createImageData( heightmap.width, heightmap.height );
     var pix = visibilityMap.data;
