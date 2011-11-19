@@ -1,0 +1,1 @@
+guard 'coffeescript', :input => 'game', :output => 'game', :bare => true

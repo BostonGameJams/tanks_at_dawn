@@ -1,0 +1,3 @@
+define(['cs!/game/mantra/util/core', 'cs!/game/mantra/util/asset_manager', 'cs!/game/mantra/util/audio_manager', 'cs!/game/mantra/util/canvas', 'cs!/game/mantra/util/core', 'cs!/game/mantra/util/entity_set', 'cs!/game/mantra/util/game_launcher', 'cs!/game/mantra/util/geometry', 'cs!/game/mantra/util/key_manager', 'cs!/game/mantra/util/logger', 'cs!/game/mantra/util/sprite', 'cs!/game/mantra/util/timer'], function(util) {
+  return console.log('Util is loaded!');
+});

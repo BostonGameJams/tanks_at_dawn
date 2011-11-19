@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<head>
+  <title>Tanks at Dawn [Mantra]</title>
+
+  <link href="mantra.css" media="screen" rel="stylesheet" type="text/css" />
+
+  <script src='lib/jquery/jquery-1.6.2.js'></script>
+  <script src='lib/jquery/jquery.hotkeys.js'></script>
+  <script src='lib/underscore.js'></script>
+  <script src='lib/base.js'></script>
+  <script src='lib/machine.js'></script>
+  <script src='lib/shims.js'></script>
+  <script src='lib/js-finite-state-machine.js'></script>
+  <script src='lib/helpers.js'></script>
+
+  <script src="mantra/util/core.js"></script>
+  <script src="mantra/util/asset_manager.js"></script>
+  <script src="mantra/util/audio_manager.js"></script>
+  <script src="mantra/util/canvas.js"></script>
+  <script src="mantra/util/entity_set.js"></script>
+  <script src="mantra/util/game_launcher.js"></script>
+  <script src="mantra/util/geometry.js"></script>
+  <script src="mantra/util/key_manager.js"></script>
+  <script src="mantra/util/logger.js"></script>
+  <script src="mantra/util/sprite.js"></script>
+  <script src="mantra/util/timer.js"></script>
+
+  <script src="mantra/entities/entity.js"></script>
+  <script src="mantra/entities/sprite_entity.js"></script>
+  <script src="mantra/entities/map_entity.js"></script>
+  <script src="mantra/entities/screen.js"></script>
+  <script src="mantra/entities/custom_draw_actor.js"></script>
+  <script src="mantra/entities/ui_pane.js"></script>
+
+  <script src="mantra/levels/level.js"></script>
+  <script src="mantra/levels/level_manager.js"></script>
+  <script src="mantra/levels/map.js"></script>
+
+  <script src="mantra/events/event_manager.js"></script>
+  <script src="mantra/effects/bullet.js"></script>
+  <script src="mantra/core/game.js"></script>
+  <script src="mantra/controls/keyboard.js"></script>
+  <script src="mantra/config.js"></script>
+
+  <script src="games/tanks_at_dawn/tanks_at_dawn.js"></script>
+  <script src="games/8by5/entities/defender.js"></script>
+  <script src="games/8by5/effects/defender_bullet.js"></script>
+</head>
+<body id="mantra" class="games" onload="">
+  <h1>Tanks at Dawn</h1>
+
+  <article id="game_holder"></article>
+
+  <script>
+    window.game = null;
+
+    function launchGame(game_name) {
+      game_launcher = GameLauncher.launchInto(game_name, Mantra.Canvas.j_createCanvas().appendTo('#game_holder').get(0))
+      game = game_launcher.game;
+    }
+
+    launchGame(eval(geturlparameter('game') ||'EightByFive'));
+  </script>
+</body>
