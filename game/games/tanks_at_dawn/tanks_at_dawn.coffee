@@ -18,10 +18,10 @@ class Tanks extends Mantra.Game
           text:   -> "#{@player_name}, find and destroy your opponent!"
         game:
           elements: ->
-            @p1_tank = new Tanks.Tank @, color: 'red'
+            @p1_tank = new Tanks.Tank @, color: 'red', name: 'p1'
             @p1_tank.setCoords x: 332, y: 182
 
-            @p2_tank = new Tanks.Tank @, color: 'blue'
+            @p2_tank = new Tanks.Tank @, color: 'blue', name: 'p2'
             @p2_tank.setCoords x: 32, y: 32
 
             @visibility_cloak = new VisibilityCloak @, 'a_vis_map'
@@ -33,6 +33,9 @@ class Tanks extends Mantra.Game
             [@visibility_cloak, @p1_tank, @p2_tank, map_enities...]
           on_keys:
             P: -> @game.showScreen 'pause'
+
+    @state.add_transition 'start_p1_turn', ['started', 'p2_turn'], (=> null), 'p1_turn'
+    @state.add_transition 'start_p2_turn', ['started', 'p1_turn'], (=> null), 'p2_turn'
 
   loadMap: -> new Mantra.Map
     map_width:    16

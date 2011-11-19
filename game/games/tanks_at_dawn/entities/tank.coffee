@@ -1,16 +1,18 @@
 class Tanks.Tank extends Mantra.Entity
   constructor: (game, @opts = {}) ->
     _.defaults @opts,
-      color: 'rgba(230, 230, 230, .9)'
+      color: 'rgba(230, 230, 230, .9)',
+      name:  'tank'
 
     super game, null, 0
+    @name = @opts.name
     @speed = 5
     [@colx, @coly] = [16, 16]
     [@colw, @colh] = [16, 16]
 
   update: ->
-    Mantra.Controls.moveByKeys.call @
-    @shoot() if @game.click
+    Mantra.Controls.moveByKeys.call @ if @isMyTurn()
+    @shoot() if @game.click and @isMyTurn()
 
     @game.map.tileCollision @
 
@@ -30,6 +32,9 @@ class Tanks.Tank extends Mantra.Entity
   setCoords: (coords) ->
     @x = coords.x
     @y = coords.y
+
+  isMyTurn: ->
+    @game.state.current_state == "#{@name}_turn"
 
   shoot: ->
     @game.screens.game.add new EBF.DefenderBullet @game,

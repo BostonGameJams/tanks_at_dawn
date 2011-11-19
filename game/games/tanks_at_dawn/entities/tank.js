@@ -12,16 +12,20 @@ Tanks.Tank = (function() {
     var _ref, _ref2;
     this.opts = opts != null ? opts : {};
     _.defaults(this.opts, {
-      color: 'rgba(230, 230, 230, .9)'
+      color: 'rgba(230, 230, 230, .9)',
+      name: 'tank'
     });
     Tank.__super__.constructor.call(this, game, null, 0);
+    this.name = this.opts.name;
     this.speed = 5;
     _ref = [16, 16], this.colx = _ref[0], this.coly = _ref[1];
     _ref2 = [16, 16], this.colw = _ref2[0], this.colh = _ref2[1];
   }
   Tank.prototype.update = function() {
-    Mantra.Controls.moveByKeys.call(this);
-    if (this.game.click) {
+    if (this.isMyTurn()) {
+      Mantra.Controls.moveByKeys.call(this);
+    }
+    if (this.game.click && this.isMyTurn()) {
       this.shoot();
     }
     return this.game.map.tileCollision(this);
@@ -48,6 +52,9 @@ Tanks.Tank = (function() {
   Tank.prototype.setCoords = function(coords) {
     this.x = coords.x;
     return this.y = coords.y;
+  };
+  Tank.prototype.isMyTurn = function() {
+    return this.game.state.current_state === ("" + this.name + "_turn");
   };
   Tank.prototype.shoot = function() {
     this.game.screens.game.add(new EBF.DefenderBullet(this.game, {

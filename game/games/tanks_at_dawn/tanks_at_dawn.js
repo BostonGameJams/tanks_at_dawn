@@ -6,7 +6,7 @@ var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, par
   child.prototype = new ctor;
   child.__super__ = parent.prototype;
   return child;
-}, __slice = Array.prototype.slice;
+}, __slice = Array.prototype.slice, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 Tanks = (function() {
   __extends(Tanks, Mantra.Game);
   function Tanks(options) {
@@ -35,14 +35,16 @@ Tanks = (function() {
           elements: function() {
             var ent, map_enities, _i, _len, _ref;
             this.p1_tank = new Tanks.Tank(this, {
-              color: 'red'
+              color: 'red',
+              name: 'p1'
             });
             this.p1_tank.setCoords({
               x: 332,
               y: 182
             });
             this.p2_tank = new Tanks.Tank(this, {
-              color: 'blue'
+              color: 'blue',
+              name: 'p2'
             });
             this.p2_tank.setCoords({
               x: 32,
@@ -72,6 +74,12 @@ Tanks = (function() {
         }
       }
     }));
+    this.state.add_transition('start_p1_turn', ['started', 'p2_turn'], (__bind(function() {
+      return null;
+    }, this)), 'p1_turn');
+    this.state.add_transition('start_p2_turn', ['started', 'p1_turn'], (__bind(function() {
+      return null;
+    }, this)), 'p2_turn');
   }
   Tanks.prototype.loadMap = function() {
     return new Mantra.Map({
