@@ -10,11 +10,15 @@ var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, par
 VisibilityCloak = (function() {
   __extends(VisibilityCloak, SpriteEntity);
   function VisibilityCloak(game, image) {
-    VisibilityCloak.__super__.constructor.call(this, game, image);
+    this.image = image;
+    VisibilityCloak.__super__.constructor.call(this, game, this.getSprite());
   }
   VisibilityCloak.prototype.draw = function(context) {
-    context.drawImage(this.sprite, this.x, this.y, 512, 512);
+    context.drawImage(this.getSprite(), this.x, this.y, 512, 512);
     return VisibilityCloak.__super__.draw.call(this, context);
+  };
+  VisibilityCloak.prototype.getSprite = function() {
+    return this.sprite || (this.sprite = typeof this.image === 'string' ? AssetManager.getImage(this.image) : this.image);
   };
   return VisibilityCloak;
 })();

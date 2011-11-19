@@ -1,5 +1,8 @@
 class Tanks.Tank extends Mantra.Entity
-  constructor: (game, @radius = 16) ->
+  constructor: (game, @opts = {}) ->
+    _.defaults @opts,
+      color: 'rgba(230, 230, 230, .9)'
+
     super game, null, 0
     @speed = 5
     [@colx, @coly] = [16, 16]
@@ -15,12 +18,12 @@ class Tanks.Tank extends Mantra.Entity
     Mantra.Canvas.rectangle context,
       x: @x, y: @y
       w: 16, h: 16
-      style: 'rgba(230, 230, 230, .9)'
+      style: @opts.color
 
     if @game.draw_collision_boxes
       Mantra.Canvas.rectangle context,
         x: @x - @colx,  y: @y - @coly,
-        w: @radius * 2, h: @radius * 2
+        w: 16, h: 16
         hollow: true
         style:  'white'
 
@@ -33,6 +36,6 @@ class Tanks.Tank extends Mantra.Entity
       x:             @x
       y:             @y
       angle:         Math.atan2 @game.mouse.y - @y, @game.mouse.x - @x
-      radial_offset: @radius + 3
+      radial_offset: 19
 
     AssetManager.playSound 'bullet_shot'

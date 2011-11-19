@@ -8,9 +8,12 @@ var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, par
 };
 Tanks.Tank = (function() {
   __extends(Tank, Mantra.Entity);
-  function Tank(game, radius) {
+  function Tank(game, opts) {
     var _ref, _ref2;
-    this.radius = radius != null ? radius : 16;
+    this.opts = opts != null ? opts : {};
+    _.defaults(this.opts, {
+      color: 'rgba(230, 230, 230, .9)'
+    });
     Tank.__super__.constructor.call(this, game, null, 0);
     this.speed = 5;
     _ref = [16, 16], this.colx = _ref[0], this.coly = _ref[1];
@@ -29,14 +32,14 @@ Tanks.Tank = (function() {
       y: this.y,
       w: 16,
       h: 16,
-      style: 'rgba(230, 230, 230, .9)'
+      style: this.opts.color
     });
     if (this.game.draw_collision_boxes) {
       return Mantra.Canvas.rectangle(context, {
         x: this.x - this.colx,
         y: this.y - this.coly,
-        w: this.radius * 2,
-        h: this.radius * 2,
+        w: 16,
+        h: 16,
         hollow: true,
         style: 'white'
       });
@@ -51,7 +54,7 @@ Tanks.Tank = (function() {
       x: this.x,
       y: this.y,
       angle: Math.atan2(this.game.mouse.y - this.y, this.game.mouse.x - this.x),
-      radial_offset: this.radius + 3
+      radial_offset: 19
     }));
     return AssetManager.playSound('bullet_shot');
   };
