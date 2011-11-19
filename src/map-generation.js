@@ -1,4 +1,16 @@
 window.onload = function() {
+  function getParameterByName( name ) {
+    name = name.replace( /[\[]/, "\\\[" ).replace( /[\]]/, "\\\]" );
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp( regexS );
+    var results = regex.exec( window.location.href );
+    if ( results == null ) {
+      return "";
+    } else {
+      return decodeURIComponent( results[1].replace( /\+/g, ' ' ) );
+    }
+  }
+
   function bresenhamLine( x0, y0, x1, y1 ) {
     var
       dx = Math.abs( x1 - x0 ),
@@ -30,7 +42,7 @@ window.onload = function() {
   }
 
   function isTargetVisible( heightmap, tankX, tankY, targetX, targetY ) {
-    var eyeHeight = 1;
+    var eyeHeight = parseInt( getParameterByName( 'eyeHeight' ) || '1' );
     var pix = heightmap.data;
     var tankHeight = pix[ 4 * ( tankY * heightmap.width + tankX ) ] + eyeHeight;
     var targetHeight = pix[ 4 * ( targetY * heightmap.width + targetX ) ] + eyeHeight;
