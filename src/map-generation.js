@@ -1,4 +1,8 @@
 window.onload = function() {
+  function el( id ) {
+      return document.getElementById( id );
+  }
+
   function getParameterByName( name ) {
     name = name.replace( /[\[]/, "\\\[" ).replace( /[\]]/, "\\\]" );
     var regexS = "[\\?&]" + name + "=([^&#]*)";
@@ -77,10 +81,10 @@ window.onload = function() {
     return visibilityMap;
   }
 
-  var canvas = document.getElementById( 'input-canvas' );
+  var canvas = el( 'input-canvas' );
   var ctx = canvas.getContext( '2d' );
 
-  var outputCanvas = document.getElementById( 'output-canvas' );
+  var outputCanvas = el( 'output-canvas' );
   var outputCtx = outputCanvas.getContext( '2d' );
 
   var heightmap;
@@ -114,6 +118,8 @@ window.onload = function() {
 
       var visibilityMap = createVisibilityMap( heightmap, x, y );
       outputCtx.putImageData( visibilityMap, 0, 0 );
+      var outputP = el( 'base64-output' );
+      outputP.innerHTML = outputCanvas.toDataURL( 'image/png' );
       outputCtx.putImageData( reticule, x - 1, y - 1 );
     }, false );
   };
