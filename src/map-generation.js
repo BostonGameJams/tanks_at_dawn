@@ -63,8 +63,8 @@ window.onload = function() {
   function isTargetVisible( heightmap, tankX, tankY, targetX, targetY ) {
     var
       pix = heightmap.data,
-      tankHeight = pix[ 4 * ( tankY * heightmap.width + tankX ) ] + eyeHeight,
-      targetHeight = pix[ 4 * ( targetY * heightmap.width + targetX ) ] + eyeHeight,
+      tankHeight = heightScale * pix[ 4 * ( tankY * heightmap.width + tankX ) ] + eyeHeight,
+      targetHeight = heightScale * pix[ 4 * ( targetY * heightmap.width + targetX ) ] + eyeHeight,
 
       points = bresenhamLine( tankX, tankY, targetX, targetY ),
       dH = ( targetHeight - tankHeight ) / ( points.length - 1 ),
@@ -72,7 +72,7 @@ window.onload = function() {
 
     for ( i = 1; i < points.length - 1; ++i ) {
       // height of the terrain at the line-of-sight point
-      pointHeight = pix[ 4 * ( points[ i ].y * heightmap.width +  points[ i ].x ) ];
+      pointHeight = heightScale * pix[ 4 * ( points[ i ].y * heightmap.width +  points[ i ].x ) ];
       // height of the line-of-sight point
       sightHeight = tankHeight + i * dH;
 
@@ -154,7 +154,7 @@ window.onload = function() {
   // Amanatides, John. A Fast Voxel Traversal Algorithm for Ray Tracing
   function isSunVisible( heightmap, i, j, sunVec ) {
     var
-      startZ = heightmap.data[ 4 * ( j * heightmap.width + i ) ] + eyeHeight,
+      startZ = heightScale * heightmap.data[ 4 * ( j * heightmap.width + i ) ] + eyeHeight,
       sx = sunVec.x > 0 ? 1 : -1,
       sy = sunVec.y > 0 ? 1 : -1,
       maxX = sx * 0.5 / sunVec.x,
@@ -165,7 +165,7 @@ window.onload = function() {
 
     while ( i >= 0 && i < heightmap.width && j >= 0 && j < heightmap.height ) {
       var
-        pointHeight = heightmap.data[ 4 * ( j * heightmap.width + i ) ],
+        pointHeight = heightScale * heightmap.data[ 4 * ( j * heightmap.width + i ) ],
         lineHeight = startZ + sunVec.z * t;
 
       // alert(
@@ -179,7 +179,7 @@ window.onload = function() {
       }
 
       // pixel values will only ever be 0 to 255
-      if ( lineHeight > 255 ) {
+      if ( lineHeight > 255 * heightScale ) {
         return true;
       }
 
@@ -276,8 +276,6 @@ window.onload = function() {
         var pixelIndex = 4 * ( j * heightmap.width + i );
         var normal = getNormalAt( heightmap, i, j );
 
-        // var lighting = dot( normal, normalize( sunVec ) ) * 255;
-
         var r = normal.x * 128 + 128;
         var g = normal.y * 128 + 128;
         var b = normal.z * 128 + 128;
@@ -286,11 +284,6 @@ window.onload = function() {
         pix[ pixelIndex + 1 ] = g;
         pix[ pixelIndex + 2 ] = b;
         pix[ pixelIndex + 3 ] = 255;
-
-        // pix[ pixelIndex + 0 ] = lighting;
-        // pix[ pixelIndex + 1 ] = lighting;
-        // pix[ pixelIndex + 2 ] = lighting;
-        // pix[ pixelIndex + 3 ] = 255;
       }
     }
 
@@ -448,17 +441,4 @@ window.onload = function() {
       redraw();
     }
   });
-
-  // inputCanvas.keyup('down', function(evt) {
-  //   ++tankPositionY;
-  //   redraw();
-  // });
-  // inputCanvas.keyup('left', function(evt) {
-  //   --tankPositionX;
-  //   redraw();
-  // });
-  // inputCanvas.keyup('right', function(evt) {
-  //   ++tankPositionX;
-  //   redraw();
-  // });
 };
