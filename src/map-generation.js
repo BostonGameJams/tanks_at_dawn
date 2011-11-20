@@ -108,6 +108,10 @@ window.onload = function() {
         return false;
       }
 
+      if ( lineHeight > 256 ) {
+        return true;
+      }
+
       if ( maxX < maxY ) {
         t = maxX;
         maxX += dx;
