@@ -1,7 +1,9 @@
 (function() {
   var EntitySet;
   var __slice = Array.prototype.slice;
+
   EntitySet = (function() {
+
     function EntitySet() {
       var entities, game;
       game = arguments[0], entities = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -10,6 +12,7 @@
       this.visible = true;
       this.paused = false;
     }
+
     EntitySet.prototype.add = function() {
       var entity, new_entities, _i, _len, _results;
       new_entities = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -20,6 +23,7 @@
       }
       return _results;
     };
+
     EntitySet.prototype.update = function() {
       var entity, _i, _len, _ref, _results;
       if (!this.paused) {
@@ -32,6 +36,7 @@
         return _results;
       }
     };
+
     EntitySet.prototype.draw = function(context) {
       var entity, _i, _len, _ref, _results;
       if (this.visible) {
@@ -44,18 +49,23 @@
         return _results;
       }
     };
+
     EntitySet.prototype.pause = function() {
       return this.paused = true;
     };
+
     EntitySet.prototype.unpause = function() {
       return this.paused = false;
     };
+
     EntitySet.prototype.hide = function() {
       return this.visible = false;
     };
+
     EntitySet.prototype.show = function() {
       return this.visible = true;
     };
+
     EntitySet.prototype.cull = function() {
       var i, _ref, _results;
       if (this.entities.length) {
@@ -68,7 +78,11 @@
         return _results;
       }
     };
+
     return EntitySet;
+
   })();
+
   root.EntitySet = EntitySet;
+
 }).call(this);

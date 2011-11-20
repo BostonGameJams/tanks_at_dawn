@@ -1,10 +1,12 @@
-(function() {
+
   Mantra.Timer = (function() {
+
     function Timer() {
       this.time_passed = 0;
       this.max_step = 0.05;
       this.last_timestamp = 0;
     }
+
     Timer.prototype.tick = function() {
       var current_timestamp, time_delta, walled_time_delta;
       current_timestamp = Date.now();
@@ -14,11 +16,10 @@
       this.time_passed += walled_time_delta;
       return walled_time_delta;
     };
+
     Timer.after = function(obj, options) {
       var timer;
-      if (options == null) {
-        options = {};
-      }
+      if (options == null) options = {};
       timer = new Mantra.Timer();
       obj.addTimer(timer);
       if (options.milliseconds != null) {
@@ -28,6 +29,7 @@
         return timer.time_passed > options.seconds;
       };
     };
+
     return Timer;
+
   })();
-}).call(this);

@@ -1,4 +1,4 @@
-window.onload = function() {
+$(window).load(function() {
   function el( id ) {
     return document.getElementById( id );
   }
@@ -7,24 +7,16 @@ window.onload = function() {
   // http://stackoverflow.com/questions/901115/get-query-string-values-in-javascript
   // no, I didn't realize there was a jquery plugin for this
   function getParameterByName( name ) {
-    name = name.replace( /[\[]/, "\\\[" ).replace( /[\]]/, "\\\]" );
-    var regexS = "[\\?&]" + name + "=([^&#]*)";
-    var regex = new RegExp( regexS );
-    var results = regex.exec( window.location.href );
-    if ( results == null ) {
-      return '';
-    } else {
-      return decodeURIComponent( results[1].replace( /\+/g, ' ' ) );
-    }
+    return game[name];
   }
 
   // eyeHeight changes LOS and shadow calculations by a certain offset off
   // the ground. Larger values represent "taller" tanks.
   var eyeHeight = parseInt( getParameterByName( 'eyeHeight' ) || '1' );
 
-  var sunX = parseFloat( getParameterByName( 'sunX' ) || '-0.3' );
-  var sunY = parseFloat( getParameterByName( 'sunY' ) || '-0.3' );
-  var sunZ = parseFloat( getParameterByName( 'sunZ' ) || '0.5' );
+  game.sunZ = 0;
+  game.sunX = -0.3;
+  game.sunY = -0.3;
 
   var heightScale = parseFloat( getParameterByName( 'heightScale' ) || '1' );
 
@@ -91,7 +83,7 @@ window.onload = function() {
       visibilityMap = ctx.createImageData( heightmap.width, heightmap.height ),
       pix = visibilityMap.data,
       opaque = 128,
-      minSightRange = Math.asin( normalize({ x: sunX, y: sunY, z: sunZ }).z ) * 20,
+      minSightRange = Math.asin( normalize({ x: game.sunX, y: game.sunY, z: game.sunZ }).z ) * 20,
       i, j, pixelIndex;
 
     for ( i = 0; i < heightmap.width; ++i ) {
@@ -269,7 +261,7 @@ window.onload = function() {
       startTime = Date.now(),
       normalMap = ctx.createImageData( heightmap.width, heightmap.height ),
       pix = normalMap.data,
-      sunVec = { x: sunX, y: sunY, z: sunZ },
+      sunVec = { x: game.sunX, y: game.sunY, z: game.sunZ },
       i, j;
 
     for ( i = 0; i < heightmap.width; ++i ) {
@@ -293,12 +285,13 @@ window.onload = function() {
     return normalMap;
   }
 
-  function renderMap( heightmap ) {
+  game.renderMap
+    = function renderMap( heightmap ) {
     var
       startTime = Date.now(),
       render = ctx.createImageData( heightmap.width, heightmap.height ),
       pix = render.data,
-      sunVec = { x: sunX, y: sunY, z: sunZ },
+      sunVec = { x: game.sunX, y: game.sunY, z: game.sunZ },
       i, j;
 
     for ( i = 0; i < heightmap.width; ++i ) {
@@ -392,7 +385,7 @@ window.onload = function() {
     renderCtx.putImageData( render, 0, 0 );
 
     // compute and blit the shadow map
-    shadowMap = createShadowMap( heightmap, { x: sunX, y: sunY, z: sunZ } );
+    shadowMap = createShadowMap( heightmap, { x: game.sunX, y: game.sunY, z: game.sunZ } );
     shadowCtx.putImageData( shadowMap, 0, 0 );
 
     // link the shadow map
@@ -450,4 +443,4 @@ window.onload = function() {
       redraw();
     }
   });
-};
+});

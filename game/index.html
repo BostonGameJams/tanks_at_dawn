@@ -14,6 +14,7 @@
   <script src='lib/js-finite-state-machine.js'></script>
   <script src='lib/helpers.js'></script>
   <script src='lib/buzz.js'></script>
+  <script src='lib/map-generation.js'></script>
 
   <script src="mantra/util/core.js"></script>
 
@@ -88,6 +89,32 @@
 
   <article id="game_holder"></article>
 
+  <div id="processing-canvases" style="display:none">
+  <div class="block">
+    <canvas id="input-canvas" width="64" height="64"></canvas>
+  </div>
+  <div class="block">
+    <canvas id="normal-canvas" width="64" height="64"></canvas>
+    <p><a id="base64-normal" target="_blank">Base64 Normal</a></p>
+    <p id="normal-timing"></p>
+  </div>
+  <div class="block">
+    <canvas id="render-canvas" width="64" height="64"></canvas>
+    <p><a id="base64-render" target="_blank">Base64 Render</a></p>
+    <p id="render-timing"></p>
+  </div>
+  <div class="block">
+    <canvas id="output-canvas" width="64" height="64"></canvas>
+    <p><a id="base64-output" target="_blank">Base64 Output</a></p>
+    <p id="output-timing"></p>
+  </div>
+  <div class="block">
+    <canvas id="shadow-canvas" width="64" height="64"></canvas>
+    <p><a id="base64-shadow" target="_blank">Base64 Shadow</a></p>
+    <p id="shadow-timing"></p>
+  </div>
+  <canvas id="resized-canvas" width="512" height="512"></canvas>
+  </div>
   <script>
     window.game = null;
 

@@ -14,6 +14,10 @@ class Tanks extends Mantra.Game
       process_game_over: (data) =>
         @winner = data.winner
         @showScreen 'gameover'
+      sunZ : 0
+      sunX : -0.3
+      sunY : -0.3
+
 
       screens:
         loading: 'preset'
