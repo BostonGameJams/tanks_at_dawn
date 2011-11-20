@@ -94,7 +94,7 @@ window.onload = function() {
 
   function isSunVisible( heightmap, i, j, sunVec ) {
     var
-      startZ = heightmap.data[ 4 * ( j * heightmap.width + i ) ] + 1,
+      startZ = heightmap.data[ 4 * ( j * heightmap.width + i ) ] + eyeHeight,
       sx = sunVec.x > 0 ? 1 : -1,
       sy = sunVec.y > 0 ? 1 : -1,
       maxX = sx * 0.5 / sunVec.x,
