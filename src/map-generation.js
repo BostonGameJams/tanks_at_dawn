@@ -193,7 +193,7 @@ window.onload = function() {
     // draw the initial heightmap image
     ctx.drawImage( img, 0, 0 );
 
-    heightmap = ctx.getImageData( 0, 0, 256, 256 );
+    heightmap = ctx.getImageData( 0, 0, 128, 128 );
 
     // compute and blit the shadow map
     var shadowMap = createShadowMap( heightmap, { x: -0.3, y: -0.3, z: 0.5 } );
@@ -232,5 +232,5 @@ window.onload = function() {
       outputCtx.putImageData( reticule, x - 1, y - 1 );
     }, false );
   };
-  img.src = 'heightmap.png';
+  img.src = 'heightmap-128.png';
 };
