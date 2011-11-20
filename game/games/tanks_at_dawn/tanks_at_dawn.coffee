@@ -50,7 +50,7 @@ class Tanks extends Mantra.Game
         game:
           elements: ->
             @p1_tank = new Tanks.Tank @, color: 'red', name: 'p1'
-            @p1_tank.setCoords x: 332, y: 182
+            @p1_tank.setCoords x: 128, y: 128
 
             @p2_tank = new Tanks.Tank @, color: 'blue', name: 'p2'
             @p2_tank.setCoords x: 32, y: 32
@@ -86,12 +86,38 @@ class Tanks extends Mantra.Game
           on_keys:
             ' ': -> @game.state.send_event 'ready_p1'            
 
-    @state.add_transition 'ready_p1',      ['started', 'game_lost', 'p2_turn', 'p1_won', 'p2_won'], (=> @showScreen 'p1_ready'), 'p1_get_ready'
-    @state.add_transition 'start_p1_turn', ['p1_get_ready'],       (=> @showScreen 'game'),     'p1_turn'
-    @state.add_transition 'ready_p2',      ['p1_turn'],            (=> @showScreen 'p2_ready'), 'p2_get_ready'
-    @state.add_transition 'start_p2_turn', ['p2_get_ready'],       (=> @showScreen 'game'),     'p2_turn'
+    @state.add_transition 'ready_p1',      ['started', 'game_lost', 'p2_turn', 'p1_won', 'p2_won'],
+      (=>
+        @showScreen 'p1_ready'
+        @gridder.hide()
+      ),
+      'p1_get_ready'
+
+    @state.add_transition 'start_p1_turn', ['p1_get_ready'],
+      (=>
+        @showScreen 'game'
+        @gridder.show()
+      ),
+      'p1_turn'
+
+    @state.add_transition 'ready_p2',      ['p1_turn'],
+      (=>
+        @showScreen 'p2_ready'
+        @gridder.hide()
+      ),
+      'p2_get_ready'
+
+    @state.add_transition 'start_p2_turn', ['p2_get_ready'],
+      (=>
+        @showScreen 'game'
+        @gridder.show()
+      ),
+      'p2_turn'
+
     @state.add_transition 'p1_wins', ['p1_turn'],    (=> @options.process_game_over.call @, winner: 'p1'),    'p1_won'
     @state.add_transition 'p2_wins', ['p2_turn'],    (=> @options.process_game_over.call @, winner: 'p2'),    'p2_won'
+
+    @setupDOM()
 
   loadMap: -> new Mantra.Map
     map_width:    16
@@ -123,13 +149,53 @@ class Tanks extends Mantra.Game
       xxxxxxxxxxxxxxxx
       '''
 
+  setupDOM: ->
+    pixel_width  = 512
+    pixel_height = 512
+    grid_width   = 64
+    grid_height  = 64
+    @gridder =
+      $('<div class="gridder">')
+        .appendTo('#game_holder')
+        .hide()
+
+    for i in [0...grid_width]
+      for j in [0...grid_height]
+        $('<div class="grid_square">')
+          # .css(top: i*pixel_height/grid_height, left: j*pixel_width/grid_width)
+          .appendTo(@gridder)
+
+    $('<label class="selected"></label>')
+      .css(position: 'fixed', right: '20px', bottom: '20px')
+      .appendTo('body')
+
+    @gridder.click (e) ->
+      x = e.pageX - @offsetLeft - $('#game_holder').position().left
+      y = e.pageY - @offsetTop - $('#game_holder').position().top
+
+      # console.log e
+      # console.log $(e.target)
+      $('.gridder .grid_square').removeClass('selected')
+      $(e.target).addClass('selected')
+      # css
+        # backgroundColor: 'red'
+
+      tile_selected_x = Math.ceil x/8
+      tile_selected_y = Math.ceil y/8
+
+      $('label.selected').text "Tile selected: #{tile_selected_x}, #{tile_selected_y}"
+
+      $em.trigger 'tanks:tile_selected',
+        tile_selected_x: tile_selected_x,
+        tile_selected_y: tile_selected_y
+
   configureEngine: ->
     # Levels, in increasing order of verbosity: off, error, warn, info, debug
     $logger.levels
-      global: 'debug'
-      sound:  'debug'
-      assets: 'debug'
-      input:  'debug'
-      game:   'info'
+      global: 'warn'
+      sound:  'warn'
+      assets: 'warn'
+      input:  'warn'
+      game:   'warn'
 
 root.Tanks = Tanks

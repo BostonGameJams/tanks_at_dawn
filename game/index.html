@@ -4,7 +4,8 @@
 
   <link href="mantra.css" media="screen" rel="stylesheet" type="text/css" />
 
-  <script src='lib/jquery/jquery-1.6.2.js'></script>
+  <!-- <script src='lib/jquery/jquery-1.6.2.js'></script> -->
+  <script src='lib/jquery/jquery-1.7.js'></script>
   <script src='lib/jquery/jquery.hotkeys.js'></script>
   <script src='lib/underscore.js'></script>
   <script src='lib/base.js'></script>
@@ -53,6 +54,42 @@
   <script src="games/tanks_at_dawn/effects/defender_bullet.js"></script>
   <script src="games/tanks_at_dawn/effects/visibility_cloak.js"></script>
   <script src="games/tanks_at_dawn/effects/drawn_map.js"></script>
+
+  <style type="text/css" media="screen">
+    .gridder {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+    }
+
+    .gridder .grid_square {
+/*      position: absolute;*/
+/*      top:  0px;*/
+/*      left: 0px;*/
+/*      display: inline-block;*/
+      float: left;
+
+      width:  7px;
+      height: 7px;
+/*      width:  15px;*/
+/*      height: 15px;*/
+/*      width:  32px;*/
+/*      height: 32px;*/
+/*      width:  64px;*/
+/*      height: 64px;*/
+
+      border-right: 1px solid rgba(200, 200, 200, 0.3);
+      border-top: 1px solid rgba(200, 200, 200, 0.3);
+    }
+
+    .gridder .grid_square.selected {
+      background-color: rgba(255, 0, 0, 0.3);
+    }
+
+    .gridder .grid_square:hover {
+      background-color: rgba(200, 200, 255, 0.3);
+    }
+  </style>
 </head>
 <body id="mantra" class="games" onload="">
   <h1>Tanks at Dawn</h1>

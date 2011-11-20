@@ -95,8 +95,8 @@ Tanks = (function() {
               name: 'p1'
             });
             this.p1_tank.setCoords({
-              x: 332,
-              y: 182
+              x: 128,
+              y: 128
             });
             this.p2_tank = new Tanks.Tank(this, {
               color: 'blue',
@@ -154,16 +154,20 @@ Tanks = (function() {
       }
     }));
     this.state.add_transition('ready_p1', ['started', 'game_lost', 'p2_turn', 'p1_won', 'p2_won'], (__bind(function() {
-      return this.showScreen('p1_ready');
+      this.showScreen('p1_ready');
+      return this.gridder.hide();
     }, this)), 'p1_get_ready');
     this.state.add_transition('start_p1_turn', ['p1_get_ready'], (__bind(function() {
-      return this.showScreen('game');
+      this.showScreen('game');
+      return this.gridder.show();
     }, this)), 'p1_turn');
     this.state.add_transition('ready_p2', ['p1_turn'], (__bind(function() {
-      return this.showScreen('p2_ready');
+      this.showScreen('p2_ready');
+      return this.gridder.hide();
     }, this)), 'p2_get_ready');
     this.state.add_transition('start_p2_turn', ['p2_get_ready'], (__bind(function() {
-      return this.showScreen('game');
+      this.showScreen('game');
+      return this.gridder.show();
     }, this)), 'p2_turn');
     this.state.add_transition('p1_wins', ['p1_turn'], (__bind(function() {
       return this.options.process_game_over.call(this, {
@@ -175,6 +179,7 @@ Tanks = (function() {
         winner: 'p2'
       });
     }, this)), 'p2_won');
+    this.setupDOM();
   }
   Tanks.prototype.loadMap = function() {
     return new Mantra.Map({
@@ -199,13 +204,45 @@ Tanks = (function() {
       data: ''
     }, 'xxxxxxxxxxxxxxxx\nx    x x       x\nx      x       x\nx      xxxx    x\nx  x   x    r  x\nx      x       x\nx  o           x\nx            xxx\nx            xxx\nx      xx      x\nx      xx      x\nx      xx o    x\nx      xx      x\nx      xx o    x\nx      xx      x\nxxxxxxxxxxxxxxxx');
   };
+  Tanks.prototype.setupDOM = function() {
+    var grid_height, grid_width, i, j, pixel_height, pixel_width;
+    pixel_width = 512;
+    pixel_height = 512;
+    grid_width = 64;
+    grid_height = 64;
+    this.gridder = $('<div class="gridder">').appendTo('#game_holder').hide();
+    for (i = 0; 0 <= grid_width ? i < grid_width : i > grid_width; 0 <= grid_width ? i++ : i--) {
+      for (j = 0; 0 <= grid_height ? j < grid_height : j > grid_height; 0 <= grid_height ? j++ : j--) {
+        $('<div class="grid_square">').appendTo(this.gridder);
+      }
+    }
+    $('<label class="selected"></label>').css({
+      position: 'fixed',
+      right: '20px',
+      bottom: '20px'
+    }).appendTo('body');
+    return this.gridder.click(function(e) {
+      var tile_selected_x, tile_selected_y, x, y;
+      x = e.pageX - this.offsetLeft - $('#game_holder').position().left;
+      y = e.pageY - this.offsetTop - $('#game_holder').position().top;
+      $('.gridder .grid_square').removeClass('selected');
+      $(e.target).addClass('selected');
+      tile_selected_x = Math.ceil(x / 8);
+      tile_selected_y = Math.ceil(y / 8);
+      $('label.selected').text("Tile selected: " + tile_selected_x + ", " + tile_selected_y);
+      return $em.trigger('tanks:tile_selected', {
+        tile_selected_x: tile_selected_x,
+        tile_selected_y: tile_selected_y
+      });
+    });
+  };
   Tanks.prototype.configureEngine = function() {
     return $logger.levels({
-      global: 'debug',
-      sound: 'debug',
-      assets: 'debug',
-      input: 'debug',
-      game: 'info'
+      global: 'warn',
+      sound: 'warn',
+      assets: 'warn',
+      input: 'warn',
+      game: 'warn'
     });
   };
   return Tanks;
