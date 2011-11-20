@@ -28,6 +28,8 @@ class Tanks extends Mantra.Game
             [ui_pane]
           update: ->
             @state.send_event 'start_p1_turn' if @click
+          on_keys:
+            ' ': -> @game.state.send_event 'start_p1_turn'
         p2_ready:
           elements: (options) ->
             ui_pane = new Mantra.UIPane @
@@ -39,6 +41,8 @@ class Tanks extends Mantra.Game
             [ui_pane]
           update: ->
             @state.send_event 'start_p2_turn' if @click
+          on_keys:
+            ' ': -> @game.state.send_event 'start_p2_turn'
         game:
           elements: ->
             @p1_tank = new Tanks.Tank @, color: 'red', name: 'p1'

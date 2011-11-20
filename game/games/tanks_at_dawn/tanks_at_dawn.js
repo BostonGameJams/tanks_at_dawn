@@ -52,6 +52,11 @@ Tanks = (function() {
             if (this.click) {
               return this.state.send_event('start_p1_turn');
             }
+          },
+          on_keys: {
+            ' ': function() {
+              return this.game.state.send_event('start_p1_turn');
+            }
           }
         },
         p2_ready: {
@@ -71,6 +76,11 @@ Tanks = (function() {
           update: function() {
             if (this.click) {
               return this.state.send_event('start_p2_turn');
+            }
+          },
+          on_keys: {
+            ' ': function() {
+              return this.game.state.send_event('start_p2_turn');
             }
           }
         },
