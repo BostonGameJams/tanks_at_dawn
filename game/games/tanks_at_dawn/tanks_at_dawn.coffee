@@ -63,11 +63,11 @@ class Tanks extends Mantra.Game
 
             @visibility_cloak = new VisibilityCloak @, 'a_vis_map'
 
-            @map = @loadMap()
-            map_enities = []
-            map_enities.push new Mantra.MapEntity @, { x: ent.x, y: ent.y, w: 32, h: 32, style: ent.obj.color } for ent in @map.objectMap()
+            # @map = @loadMap()
+            # map_enities = []
+            # map_enities.push new Mantra.MapEntity @, { x: ent.x, y: ent.y, w: 32, h: 32, style: ent.obj.color } for ent in @map.objectMap()
 
-            [@visibility_cloak, @p1_tank, @p2_tank, map_enities...]
+            [@visibility_cloak, @p1_tank, @p2_tank] #, map_enities...
           on_keys:
             P: ->
               @game.showScreen 'pause'
@@ -110,24 +110,24 @@ class Tanks extends Mantra.Game
       'x' : { solid: true }
       ' ' : null
     data: ''
-      # '''
-      # xxxxxxxxxxxxxxxx
-      # x    x x       x
-      # x      x       x
-      # x      xxxx    x
-      # x  x   x    r  x
-      # x      x       x
-      # x  o           x
-      # x            xxx
-      # x            xxx
-      # x      xx      x
-      # x      xx      x
-      # x      xx o    x
-      # x      xx      x
-      # x      xx o    x
-      # x      xx      x
-      # xxxxxxxxxxxxxxxx
-      # '''
+      '''
+      xxxxxxxxxxxxxxxx
+      x    x x       x
+      x      x       x
+      x      xxxx    x
+      x  x   x    r  x
+      x      x       x
+      x  o           x
+      x            xxx
+      x            xxx
+      x      xx      x
+      x      xx      x
+      x      xx o    x
+      x      xx      x
+      x      xx o    x
+      x      xx      x
+      xxxxxxxxxxxxxxxx
+      '''
 
   configureEngine: ->
     # Levels, in increasing order of verbosity: off, error, warn, info, debug

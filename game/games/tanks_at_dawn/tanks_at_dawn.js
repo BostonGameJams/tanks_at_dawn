@@ -6,7 +6,7 @@ var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, par
   child.prototype = new ctor;
   child.__super__ = parent.prototype;
   return child;
-}, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __slice = Array.prototype.slice;
+}, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 Tanks = (function() {
   __extends(Tanks, Mantra.Game);
   function Tanks(options) {
@@ -94,7 +94,6 @@ Tanks = (function() {
         },
         game: {
           elements: function() {
-            var ent, map_enities, _i, _len, _ref;
             this.p1_tank = new Tanks.Tank(this, {
               color: 'red',
               name: 'p1'
@@ -112,20 +111,7 @@ Tanks = (function() {
               y: 32
             });
             this.visibility_cloak = new VisibilityCloak(this, 'a_vis_map');
-            this.map = this.loadMap();
-            map_enities = [];
-            _ref = this.map.objectMap();
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              ent = _ref[_i];
-              map_enities.push(new Mantra.MapEntity(this, {
-                x: ent.x,
-                y: ent.y,
-                w: 32,
-                h: 32,
-                style: ent.obj.color
-              }));
-            }
-            return [this.visibility_cloak, this.p1_tank, this.p2_tank].concat(__slice.call(map_enities));
+            return [this.visibility_cloak, this.p1_tank, this.p2_tank];
           },
           on_keys: {
             P: function() {
@@ -215,7 +201,7 @@ Tanks = (function() {
         ' ': null
       },
       data: ''
-    });
+    }, 'xxxxxxxxxxxxxxxx\nx    x x       x\nx      x       x\nx      xxxx    x\nx  x   x    r  x\nx      x       x\nx  o           x\nx            xxx\nx            xxx\nx      xx      x\nx      xx      x\nx      xx o    x\nx      xx      x\nx      xx o    x\nx      xx      x\nxxxxxxxxxxxxxxxx');
   };
   Tanks.prototype.configureEngine = function() {
     return $logger.levels({
