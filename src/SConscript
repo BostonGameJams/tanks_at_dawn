@@ -10,7 +10,7 @@ static_files = [
     'map-generation.js',
     'map-generation.html',
     'style.css',
-    'heightmap-128.png',
+    'heightmap-64.png',
     ]
 
 env.Install(env['EXPORTDIR'], static_files)

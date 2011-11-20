@@ -222,7 +222,7 @@ window.onload = function() {
     // draw the initial heightmap image
     ctx.drawImage( img, 0, 0 );
 
-    heightmap = ctx.getImageData( 0, 0, 128, 128 );
+    heightmap = ctx.getImageData( 0, 0, 64, 64 );
 
     // compute and blit the shadow map
     shadowMap = createShadowMap( heightmap, { x: sunX, y: sunY, z: sunZ } );
@@ -249,7 +249,7 @@ window.onload = function() {
       redraw();
     }, false );
   };
-  img.src = 'heightmap-128.png';
+  img.src = 'heightmap-64.png';
 
   var inputCanvas = $( document.body );
   inputCanvas.keyup(function( evt ) {
