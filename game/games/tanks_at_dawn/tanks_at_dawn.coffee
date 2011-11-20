@@ -59,7 +59,7 @@ class Tanks extends Mantra.Game
             @p2_tank = new Tanks.Tank @, color: 'blue', name: 'p2'
             @p2_tank.setCoords x: 128, y: 128
 
-            @visibility_cloak = new VisibilityCloak @, 'a_vis_map'
+            @visibility_cloak = new VisibilityCloak @, $('#resized-canvas')[0];
 
             [@p1_tank, @p2_tank, @visibility_cloak]
           on_keys:
@@ -78,12 +78,15 @@ class Tanks extends Mantra.Game
             $em.listen 'tanks::tile_selected', this, (data) ->
               console.log 'sleected!!'
               if @state.current_state.match(/_turn/)
+
                 if @moveEm data
                   @state.send_event "start_#{@current_tank.name}_shoot_round"
+                  game.redrawMap()
               else if @state.current_state.match(/after_move/)
                 if @moveEm data
                   other_name = _.without(['p1', 'p2'], @current_tank.name)[0]
                   @state.send_event "ready_#{other_name}"
+                  game.redrawMap()
               else if @state.current_state.match(/shoot/)
                 console.log 'pew pew'
                 @state.send_event "start_#{@current_tank.name}_after_move"

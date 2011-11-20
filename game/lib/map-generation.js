@@ -12,13 +12,13 @@ $(window).load(function() {
 
   // eyeHeight changes LOS and shadow calculations by a certain offset off
   // the ground. Larger values represent "taller" tanks.
-  var eyeHeight = parseInt( getParameterByName( 'eyeHeight' ) || '1' );
+  var eyeHeight = parseInt( getParameterByName( 'eyeHeight' ) || '4' );
 
-  game.sunZ = 0;
+  game.sunZ = 0.1;
   game.sunX = -0.3;
   game.sunY = -0.3;
-
-  var heightScale = parseFloat( getParameterByName( 'heightScale' ) || '1' );
+  
+  var heightScale = parseFloat( getParameterByName( 'heightScale' ) || '0.08' );
 
   // generic bresenham implementation, used only for visibility test
   function bresenhamLine( x0, y0, x1, y1 ) {
@@ -285,8 +285,7 @@ $(window).load(function() {
     return normalMap;
   }
 
-  game.renderMap
-    = function renderMap( heightmap ) {
+  function renderMap( heightmap ) {
     var
       startTime = Date.now(),
       render = ctx.createImageData( heightmap.width, heightmap.height ),
@@ -332,41 +331,27 @@ $(window).load(function() {
   var resizeCtx = resizeCanvas.getContext( '2d' );
 
   var heightmap;
-  var reticule = ctx.createImageData( 1, 1 );
-  for ( var index = 0; index < reticule.width * reticule.height; ++index ) {
-    reticule.data[ 4 * index ] = 255;
-    reticule.data[ 4 * index + 3 ] = 255;
-  };
-
-  var tankPositionX, tankPositionY;
-
+  
   function redraw() {
     // draw the red dot where we clicked
     ctx.drawImage( img, 0, 0 );
-    ctx.putImageData(
-      reticule,
-      tankPositionX - ( reticule.width - 1 ) / 2,
-      tankPositionY - ( reticule.height - 1 ) / 2
-    );
+    // compute and blit the shadow map
+    shadowMap = createShadowMap( heightmap, { x: game.sunX, y: game.sunY, z: game.sunZ } );
+    shadowCtx.putImageData( shadowMap, 0, 0 );
 
     // compute and blit the visibility map
-    var visibilityMap = createVisibilityMap( heightmap, tankPositionX, tankPositionY, shadowMap );
+    var visibilityMap = createVisibilityMap( heightmap, game.current_tank.currentTile().x,game.current_tank.currentTile().y, shadowMap );
     outputCtx.putImageData( visibilityMap, 0, 0 );
 
     // link the visibility map
     var outputAnchor = el( 'base64-output' );
     outputAnchor.href = outputCanvas.toDataURL( 'image/png' );
-    outputCtx.putImageData(
-      reticule,
-      tankPositionX - ( reticule.width - 1 ) / 2,
-      tankPositionY - ( reticule.height - 1 ) / 2
-    );
-
     resizeCtx.clearRect( 0, 0, resizeCanvas.width, resizeCanvas.height );
-    resizeCtx.drawImage( renderCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height );
+    // resizeCtx.drawImage( renderCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height );
     resizeCtx.drawImage( shadowCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height );
     resizeCtx.drawImage( outputCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height );
   }
+ game.redrawMap = redraw;
 
   var img = new Image();
   img.onload = function() {
@@ -384,63 +369,14 @@ $(window).load(function() {
     var render = renderMap( heightmap );
     renderCtx.putImageData( render, 0, 0 );
 
-    // compute and blit the shadow map
-    shadowMap = createShadowMap( heightmap, { x: game.sunX, y: game.sunY, z: game.sunZ } );
-    shadowCtx.putImageData( shadowMap, 0, 0 );
 
     // link the shadow map
     var shadowAnchor = el( 'base64-shadow' );
     shadowAnchor.href = shadowCanvas.toDataURL( 'image/png' );
 
-    // specify a position on the heightmap to perform visibility calculations
-    canvas.addEventListener( 'click', function( e ) {
-      // some click code stolen from some mozilla tutorial
-      if ( e.pageX || e.pageY ) {
-        tankPositionX = e.pageX;
-        tankPositionY = e.pageY;
-      } else {
-        tankPositionX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-        tankPositionY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-      }
-
-      tankPositionX -= canvas.offsetLeft;
-      tankPositionY -= canvas.offsetTop;
-
-      redraw();
-    }, false );
   };
   img.src = 'heightmap-64.png';
 
   var inputCanvas = $( document.body );
-  inputCanvas.keyup(function( evt ) {
-    var shouldRedraw = false;
-
-    // left
-    if ( evt.keyCode == 37 ) {
-      --tankPositionX;
-      shouldRedraw = true;
-    }
-
-    // up
-    else if ( evt.keyCode == 38 ) {
-      --tankPositionY;
-      shouldRedraw = true;
-    }
-
-    // right
-    else if ( evt.keyCode == 39 ) {
-      ++tankPositionX;
-      shouldRedraw = true;
-    }
-
-    // down
-    else if ( evt.keyCode == 40 ) {
-      ++tankPositionY;
-      shouldRedraw = true;
-    }
-
-    if ( shouldRedraw ) {
-      redraw();
-    }
-  });
+ 
 });
