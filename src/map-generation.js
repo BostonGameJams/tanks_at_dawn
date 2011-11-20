@@ -91,7 +91,7 @@ window.onload = function() {
       visibilityMap = ctx.createImageData( heightmap.width, heightmap.height ),
       pix = visibilityMap.data,
       opaque = 128,
-      minSightRange = sunZ * 2.5,
+      minSightRange = Math.asin( normalize({ x: sunX, y: sunY, z: sunZ }).z ) * 20,
       i, j, pixelIndex;
 
     for ( i = 0; i < heightmap.width; ++i ) {
@@ -107,7 +107,8 @@ window.onload = function() {
             //   pix[ pixelIndex + 3 ] = 0;
             // }
 
-            if ( !( Math.abs( tankX - i ) <= minSightRange && Math.abs( tankY - j ) <= minSightRange ) ) {
+            // if ( !( Math.abs( tankX - i ) <= minSightRange && Math.abs( tankY - j ) <= minSightRange ) ) {
+            if ( Math.sqrt( Math.pow( tankX - i, 2 ) + Math.pow( tankY - j, 2 ) ) > minSightRange ) {
               pix[ pixelIndex + 0 ] = 255;
               pix[ pixelIndex + 3 ] = opaque;
             }
@@ -349,7 +350,11 @@ window.onload = function() {
   function redraw() {
     // draw the red dot where we clicked
     ctx.drawImage( img, 0, 0 );
-    ctx.putImageData( reticule, tankPositionX, tankPositionY );
+    ctx.putImageData(
+      reticule,
+      tankPositionX - ( reticule.width - 1 ) / 2,
+      tankPositionY - ( reticule.height - 1 ) / 2
+    );
 
     // compute and blit the visibility map
     var visibilityMap = createVisibilityMap( heightmap, tankPositionX, tankPositionY, shadowMap );
@@ -358,12 +363,16 @@ window.onload = function() {
     // link the visibility map
     var outputAnchor = el( 'base64-output' );
     outputAnchor.href = outputCanvas.toDataURL( 'image/png' );
-    outputCtx.putImageData( reticule, tankPositionX, tankPositionY );
+    outputCtx.putImageData(
+      reticule,
+      tankPositionX - ( reticule.width - 1 ) / 2,
+      tankPositionY - ( reticule.height - 1 ) / 2
+    );
 
-    resizeCtx.clearRect( 0, 0, 512, 512 );
-    resizeCtx.drawImage( renderCanvas, 0, 0, 512, 512 );
-    resizeCtx.drawImage( shadowCanvas, 0, 0, 512, 512 );
-    resizeCtx.drawImage( outputCanvas, 0, 0, 512, 512 );
+    resizeCtx.clearRect( 0, 0, resizeCanvas.width, resizeCanvas.height );
+    resizeCtx.drawImage( renderCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height );
+    resizeCtx.drawImage( shadowCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height );
+    resizeCtx.drawImage( outputCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height );
   }
 
   var img = new Image();
@@ -371,7 +380,7 @@ window.onload = function() {
     // draw the initial heightmap image
     ctx.drawImage( img, 0, 0 );
 
-    heightmap = ctx.getImageData( 0, 0, 64, 64 );
+    heightmap = ctx.getImageData( 0, 0, canvas.width, canvas.height );
 
     var normalMap = createNormalMap( heightmap );
     normalCtx.putImageData( normalMap, 0, 0 );
