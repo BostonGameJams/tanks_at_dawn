@@ -22,6 +22,10 @@ window.onload = function() {
   // the ground. Larger values represent "taller" tanks.
   var eyeHeight = parseInt( getParameterByName( 'eyeHeight' ) || '1' );
 
+  var sunX = parseFloat( getParameterByName( 'sunX' ) || '-0.3' );
+  var sunY = parseFloat( getParameterByName( 'sunY' ) || '-0.3' );
+  var sunZ = parseFloat( getParameterByName( 'sunZ' ) || '0.5' );
+
   // generic bresenham implementation, used only for visibility test
   function bresenhamLine( x0, y0, x1, y1 ) {
     var
@@ -178,6 +182,7 @@ window.onload = function() {
   var outputCanvas = el( 'output-canvas' );
   var outputCtx = outputCanvas.getContext( '2d' );
 
+  var shadowMap;
   var shadowCanvas = el( 'shadow-canvas' );
   var shadowCtx = shadowCanvas.getContext( '2d' );
 
@@ -188,6 +193,24 @@ window.onload = function() {
     reticule.data[ 4 * index + 3 ] = 255;
   };
 
+  var tankPositionX, tankPositionY;
+
+  function redraw() {
+    // draw the red dot where we clicked
+    ctx.drawImage( img, 0, 0 );
+    ctx.putImageData( reticule, tankPositionX - 1, tankPositionY - 1 );
+
+    // compute and blit the visibility map
+    var visibilityMap = createVisibilityMap( heightmap, tankPositionX, tankPositionY// , shadowMap
+                                           );
+    outputCtx.putImageData( visibilityMap, 0, 0 );
+
+    // link the visibility map
+    var outputAnchor = el( 'base64-output' );
+    outputAnchor.href = outputCanvas.toDataURL( 'image/png' );
+    outputCtx.putImageData( reticule, tankPositionX - 1, tankPositionY - 1 );
+  }
+
   var img = new Image();
   img.onload = function() {
     // draw the initial heightmap image
@@ -196,7 +219,7 @@ window.onload = function() {
     heightmap = ctx.getImageData( 0, 0, 128, 128 );
 
     // compute and blit the shadow map
-    var shadowMap = createShadowMap( heightmap, { x: -0.3, y: -0.3, z: 0.5 } );
+    shadowMap = createShadowMap( heightmap, { x: sunX, y: sunY, z: sunZ } );
     shadowCtx.putImageData( shadowMap, 0, 0 );
 
     // link the shadow map
@@ -206,31 +229,65 @@ window.onload = function() {
     // specify a position on the heightmap to perform visibility calculations
     canvas.addEventListener( 'click', function( e ) {
       // some click code stolen from some mozilla tutorial
-      var x, y;
       if ( e.pageX || e.pageY ) {
-        x = e.pageX;
-        y = e.pageY;
+        tankPositionX = e.pageX;
+        tankPositionY = e.pageY;
       } else {
-        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+        tankPositionX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        tankPositionY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
       }
 
-      x -= canvas.offsetLeft;
-      y -= canvas.offsetTop;
+      tankPositionX -= canvas.offsetLeft;
+      tankPositionY -= canvas.offsetTop;
 
-      // draw the red dot where we clicked
-      ctx.drawImage( img, 0, 0 );
-      ctx.putImageData( reticule, x - 1, y - 1 );
-
-      // compute and blit the visibility map
-      var visibilityMap = createVisibilityMap( heightmap, x, y, shadowMap );
-      outputCtx.putImageData( visibilityMap, 0, 0 );
-
-      // link the visibility map
-      var outputAnchor = el( 'base64-output' );
-      outputAnchor.href = outputCanvas.toDataURL( 'image/png' );
-      outputCtx.putImageData( reticule, x - 1, y - 1 );
+      redraw();
     }, false );
   };
   img.src = 'heightmap-128.png';
+
+  var inputCanvas = $( document.body );
+  inputCanvas.keyup(function( evt ) {
+    var shouldRedraw = false;
+
+    // left
+    if ( evt.keyCode == 37 ) {
+      --tankPositionX;
+      shouldRedraw = true;
+    }
+
+    // up
+    else if ( evt.keyCode == 38 ) {
+      --tankPositionY;
+      shouldRedraw = true;
+    }
+
+    // right
+    else if ( evt.keyCode == 39 ) {
+      ++tankPositionX;
+      shouldRedraw = true;
+    }
+
+    // down
+    else if ( evt.keyCode == 40 ) {
+      ++tankPositionY;
+      shouldRedraw = true;
+    }
+
+    if ( shouldRedraw ) {
+      redraw();
+    }
+  });
+
+  // inputCanvas.keyup('down', function(evt) {
+  //   ++tankPositionY;
+  //   redraw();
+  // });
+  // inputCanvas.keyup('left', function(evt) {
+  //   --tankPositionX;
+  //   redraw();
+  // });
+  // inputCanvas.keyup('right', function(evt) {
+  //   ++tankPositionX;
+  //   redraw();
+  // });
 };
