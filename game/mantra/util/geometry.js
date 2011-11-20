@@ -1,11 +1,11 @@
-(function() {
+
   Mantra.Geometry = (function() {
+
     function Geometry() {}
+
     Geometry.withinCircle = function(circle, point, options) {
       var circle_radius, distance_squared, radii_squared;
-      if (options == null) {
-        options = {};
-      }
+      if (options == null) options = {};
       _.defaults(options, {
         buffer: 0
       });
@@ -14,6 +14,7 @@
       radii_squared = (circle_radius + point.radius) * (circle_radius + point.radius);
       return distance_squared < radii_squared;
     };
+
     return Geometry;
+
   })();
-}).call(this);

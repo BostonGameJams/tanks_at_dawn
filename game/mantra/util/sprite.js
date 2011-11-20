@@ -1,7 +1,10 @@
 (function() {
   var Sprite;
+
   Sprite = (function() {
+
     function Sprite() {}
+
     Sprite.rotateAndCache = function(image, angle) {
       var offscreenCanvas, offscreenCtx, size;
       offscreenCanvas = document.createElement('canvas');
@@ -14,7 +17,11 @@
       offscreenCtx.drawImage(image, -(image.width / 2), -(image.height / 2));
       return offscreenCanvas;
     };
+
     return Sprite;
+
   })();
+
   root.Sprite = Sprite;
+
 }).call(this);

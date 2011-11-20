@@ -16,6 +16,10 @@ class Tanks extends Mantra.Game
       process_game_over: (data) =>
         @winner = data.winner
         @showScreen 'gameover'
+      sunZ : 0
+      sunX : -0.3
+      sunY : -0.3
+
 
       screens:
         loading: 'preset'
@@ -57,7 +61,7 @@ class Tanks extends Mantra.Game
             @p2_tank = new Tanks.Tank @, color: 'blue', name: 'p2'
             @p2_tank.setCoords x: 128, y: 128
 
-            @visibility_cloak = new VisibilityCloak @, 'a_vis_map'
+            @visibility_cloak = new VisibilityCloak @, $('#resized-canvas')[0];
 
             [@p1_tank, @p2_tank, @visibility_cloak]
           on_keys:
@@ -79,17 +83,19 @@ class Tanks extends Mantra.Game
                 if @state.current_state.match(/_turn/)
                   if @moveEm data
                     @state.send_event "start_#{@current_tank.name}_shoot_round"
+                    game.redrawMap()
                 else if @state.current_state.match(/after_move/)
                   if @moveEm data
                     other_name = _.without(['p1', 'p2'], @current_tank.name)[0]
                     @state.send_event "ready_#{other_name}"
+                    game.redrawMap()
                 else if @state.current_state.match(/shoot/)
                   console.log 'pew pew'
                   other_tank = _.without([@p1_tank, @p2_tank], @current_tank)[0]
                   other_tank_tile = other_tank.currentTile()
                   other_name = _.without(['p1', 'p2'], @current_tank.name)[0]
                   if data.tile_selected_x == other_tank_tile.x && data.tile_selected_y == other_tank_tile.y
-                    @state.send_event "#{@current_tank.name}_wins" 
+                    @state.send_event "#{@current_tank.name}_wins"
                   else
                     @state.send_event "start_#{@current_tank.name}_after_move"
 
