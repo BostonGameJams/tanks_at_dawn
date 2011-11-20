@@ -95,8 +95,8 @@ Tanks = (function() {
               name: 'p1'
             });
             this.p1_tank.setCoords({
-              x: 16,
-              y: 16
+              x: 416,
+              y: 192
             });
             this.p2_tank = new Tanks.Tank(this, {
               color: 'blue',
@@ -126,23 +126,20 @@ Tanks = (function() {
             this.bg_song.play().mute();
             this.tile_width = 16;
             return $em.listen('tanks::tile_selected', this, function(data) {
-              var current_tile, distance, max_movement_allowed, new_tile;
-              max_movement_allowed = 3;
-              console.log('data', data);
-              new_tile = {
-                x: data.tile_selected_x,
-                y: data.tile_selected_y
-              };
-              current_tile = {
-                x: Math.floor(this.current_tank.x / this.tile_width),
-                y: Math.floor(this.current_tank.y / this.tile_width)
-              };
-              console.log('current_tile, new_tile', current_tile, new_tile);
-              distance = Math.abs(current_tile.x - new_tile.x) + Math.abs(current_tile.y - new_tile.y);
-              console.log('distance', distance);
-              if (distance <= max_movement_allowed) {
-                this.current_tank.x = new_tile.x * this.tile_width;
-                return this.current_tank.y = new_tile.y * this.tile_width;
+              var other_name;
+              console.log('sleected!!');
+              if (this.state.current_state.match(/_turn/)) {
+                if (this.moveEm(data)) {
+                  return this.state.send_event("start_" + this.current_tank.name + "_shoot_round");
+                }
+              } else if (this.state.current_state.match(/after_move/)) {
+                if (this.moveEm(data)) {
+                  other_name = _.without(['p1', 'p2'], this.current_tank.name)[0];
+                  return this.state.send_event("ready_" + other_name);
+                }
+              } else if (this.state.current_state.match(/shoot/)) {
+                console.log('pew pew');
+                return this.state.send_event("start_" + this.current_tank.name + "_after_move");
               }
             });
           }
@@ -174,7 +171,7 @@ Tanks = (function() {
         }
       }
     }));
-    this.state.add_transition('ready_p1', ['started', 'game_lost', 'p2_turn', 'p1_won', 'p2_won'], (__bind(function() {
+    this.state.add_transition('ready_p1', ['started', 'game_lost', 'p2_turn', 'p2_shoot_round', 'p2_after_move', 'p1_won', 'p2_won'], (__bind(function() {
       this.showScreen('p1_ready');
       return this.gridder.hide();
     }, this)), 'p1_get_ready');
@@ -183,7 +180,13 @@ Tanks = (function() {
       this.showScreen('game');
       return this.gridder.show();
     }, this)), 'p1_turn');
-    this.state.add_transition('ready_p2', ['p1_turn'], (__bind(function() {
+    this.state.add_transition('start_p1_shoot_round', ['p1_turn'], (__bind(function() {
+      return console.log('Starting P1 shoot round');
+    }, this)), 'p1_shoot_round');
+    this.state.add_transition('start_p1_after_move', ['p1_shoot_round'], (__bind(function() {
+      return console.log('Starting P1 after-move round');
+    }, this)), 'p1_after_move');
+    this.state.add_transition('ready_p2', ['p1_turn', 'p1_shoot_round', 'p1_after_move'], (__bind(function() {
       this.showScreen('p2_ready');
       return this.gridder.hide();
     }, this)), 'p2_get_ready');
@@ -192,6 +195,12 @@ Tanks = (function() {
       this.showScreen('game');
       return this.gridder.show();
     }, this)), 'p2_turn');
+    this.state.add_transition('start_p2_shoot_round', ['p2_turn'], (__bind(function() {
+      return console.log('Starting P2 shoot round');
+    }, this)), 'p2_shoot_round');
+    this.state.add_transition('start_p2_after_move', ['p2_shoot_round'], (__bind(function() {
+      return console.log('Starting P2 after-move round');
+    }, this)), 'p2_after_move');
     this.state.add_transition('p1_wins', ['p1_turn'], (__bind(function() {
       this.options.process_game_over.call(this, {
         winner: 'p1'
@@ -270,6 +279,23 @@ Tanks = (function() {
       input: 'warn',
       game: 'warn'
     });
+  };
+  Tanks.prototype.moveEm = function(data) {
+    var current_tile, distance, max_movement_allowed, new_tile;
+    max_movement_allowed = 3;
+    new_tile = {
+      x: data.tile_selected_x,
+      y: data.tile_selected_y
+    };
+    current_tile = this.current_tank.currentTile();
+    distance = Math.abs(current_tile.x - new_tile.x) + Math.abs(current_tile.y - new_tile.y);
+    if (distance <= max_movement_allowed) {
+      this.current_tank.x = new_tile.x * this.tile_width;
+      this.current_tank.y = new_tile.y * this.tile_width;
+      return true;
+    } else {
+      return false;
+    }
   };
   return Tanks;
 })();

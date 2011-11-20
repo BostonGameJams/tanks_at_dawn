@@ -53,5 +53,11 @@ Tanks.Tank = (function() {
     }));
     return AssetManager.playSound('bullet_shot');
   };
+  Tank.prototype.currentTile = function() {
+    return {
+      x: Math.floor(this.x / this.game.tile_width),
+      y: Math.floor(this.y / this.game.tile_width)
+    };
+  };
   return Tank;
 })();

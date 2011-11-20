@@ -50,7 +50,7 @@ class Tanks extends Mantra.Game
         game:
           elements: ->
             @p1_tank = new Tanks.Tank @, color: 'red', name: 'p1'
-            @p1_tank.setCoords x: 16, y: 16
+            @p1_tank.setCoords x: 416, y: 192
 
             @p2_tank = new Tanks.Tank @, color: 'blue', name: 'p2'
             @p2_tank.setCoords x: 128, y: 128
@@ -72,23 +72,17 @@ class Tanks extends Mantra.Game
             @tile_width = 16
 
             $em.listen 'tanks::tile_selected', this, (data) ->
-              max_movement_allowed = 3
-
-              console.log 'data', data
-              new_tile =
-                x: data.tile_selected_x
-                y: data.tile_selected_y
-
-              current_tile =
-                x: Math.floor @current_tank.x/@tile_width
-                y: Math.floor @current_tank.y/@tile_width
-
-              console.log 'current_tile, new_tile', current_tile, new_tile
-              distance = Math.abs(current_tile.x - new_tile.x) + Math.abs(current_tile.y - new_tile.y)
-              console.log 'distance', distance
-              if distance <= max_movement_allowed
-                @current_tank.x = new_tile.x * @tile_width
-                @current_tank.y = new_tile.y * @tile_width
+              console.log 'sleected!!'
+              if @state.current_state.match(/_turn/)
+                if @moveEm data
+                  @state.send_event "start_#{@current_tank.name}_shoot_round"
+              else if @state.current_state.match(/after_move/)
+                if @moveEm data
+                  other_name = _.without(['p1', 'p2'], @current_tank.name)[0]
+                  @state.send_event "ready_#{other_name}"
+              else if @state.current_state.match(/shoot/)
+                console.log 'pew pew'
+                @state.send_event "start_#{@current_tank.name}_after_move"
 
         gameover:
           elements: (options) ->
@@ -104,14 +98,16 @@ class Tanks extends Mantra.Game
           on_keys:
             ' ': -> @game.state.send_event 'ready_p1'
 
-    @state.add_transition 'ready_p1',      ['started', 'game_lost', 'p2_turn', 'p1_won', 'p2_won'],
+    @state.add_transition 'ready_p1',
+      ['started', 'game_lost', 'p2_turn', 'p2_shoot_round', 'p2_after_move', 'p1_won', 'p2_won'],
       (=>
         @showScreen 'p1_ready'
         @gridder.hide()
       ),
       'p1_get_ready'
 
-    @state.add_transition 'start_p1_turn', ['p1_get_ready'],
+    @state.add_transition 'start_p1_turn',
+      ['p1_get_ready'],
       (=>
         @current_tank = @p1_tank
         @showScreen 'game'
@@ -119,14 +115,30 @@ class Tanks extends Mantra.Game
       ),
       'p1_turn'
 
-    @state.add_transition 'ready_p2',      ['p1_turn'],
+    @state.add_transition 'start_p1_shoot_round',
+      ['p1_turn'],
+      (=>
+        console.log 'Starting P1 shoot round'
+      ),
+      'p1_shoot_round'
+
+    @state.add_transition 'start_p1_after_move',
+      ['p1_shoot_round'],
+      (=>
+        console.log 'Starting P1 after-move round'
+      ),
+      'p1_after_move'
+
+    @state.add_transition 'ready_p2',
+      ['p1_turn', 'p1_shoot_round', 'p1_after_move'],
       (=>
         @showScreen 'p2_ready'
         @gridder.hide()
       ),
       'p2_get_ready'
 
-    @state.add_transition 'start_p2_turn', ['p2_get_ready'],
+    @state.add_transition 'start_p2_turn',
+      ['p2_get_ready'],
       (=>
         @current_tank = @p2_tank
         @showScreen 'game'
@@ -134,14 +146,30 @@ class Tanks extends Mantra.Game
       ),
       'p2_turn'
 
-    @state.add_transition 'p1_wins', ['p1_turn'],
+    @state.add_transition 'start_p2_shoot_round',
+      ['p2_turn'],
+      (=>
+        console.log 'Starting P2 shoot round'
+      ),
+      'p2_shoot_round'
+
+    @state.add_transition 'start_p2_after_move',
+      ['p2_shoot_round'],
+      (=>
+        console.log 'Starting P2 after-move round'
+      ),
+      'p2_after_move'
+
+    @state.add_transition 'p1_wins',
+      ['p1_turn'],
       (=>
         @options.process_game_over.call @, winner: 'p1'
         @gridder.hide()
       ),
       'p1_won'
 
-    @state.add_transition 'p2_wins', ['p2_turn'],
+    @state.add_transition 'p2_wins',
+      ['p2_turn'],
       (=>
         @options.process_game_over.call @, winner: 'p2'
         @gridder.hide()
@@ -232,5 +260,24 @@ class Tanks extends Mantra.Game
       assets: 'warn'
       input:  'warn'
       game:   'warn'
+
+  moveEm: (data) ->
+    max_movement_allowed = 3
+
+    new_tile =
+      x: data.tile_selected_x
+      y: data.tile_selected_y
+
+    current_tile = @current_tank.currentTile()
+
+    # console.log 'current_tile, new_tile', current_tile, new_tile
+    distance = Math.abs(current_tile.x - new_tile.x) + Math.abs(current_tile.y - new_tile.y)
+    # console.log 'distance', distance
+    if distance <= max_movement_allowed
+      @current_tank.x = new_tile.x * @tile_width
+      @current_tank.y = new_tile.y * @tile_width
+      true
+    else
+      false
 
 root.Tanks = Tanks

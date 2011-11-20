@@ -38,3 +38,7 @@ class Tanks.Tank extends Mantra.Entity
       fired_by:      @
 
     AssetManager.playSound 'bullet_shot'
+
+  currentTile: ->
+    x: Math.floor @x/@game.tile_width
+    y: Math.floor @y/@game.tile_width
