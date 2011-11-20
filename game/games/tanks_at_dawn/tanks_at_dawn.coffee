@@ -76,8 +76,8 @@ class Tanks extends Mantra.Game
             M: ->
               @game.bg_song.toggleMute()
           on_start: ->
-            # @bg_song ||= AssetManager.getBackgroundSong('tank-music')
-            # @bg_song.play().mute()
+            @bg_song ||= AssetManager.getBackgroundSong('tank-music')
+            @bg_song.play().mute()
         gameover:
           elements: (options) ->
             ui_pane = new Mantra.UIPane @

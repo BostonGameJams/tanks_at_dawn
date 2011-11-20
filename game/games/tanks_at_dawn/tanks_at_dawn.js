@@ -139,7 +139,10 @@ Tanks = (function() {
               return this.game.bg_song.toggleMute();
             }
           },
-          on_start: function() {}
+          on_start: function() {
+            this.bg_song || (this.bg_song = AssetManager.getBackgroundSong('tank-music'));
+            return this.bg_song.play().mute();
+          }
         },
         gameover: {
           elements: function(options) {
