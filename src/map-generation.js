@@ -71,14 +71,23 @@ window.onload = function() {
   }
 
   function createVisibilityMap( heightmap, tankX, tankY ) {
+    var old = Date.now();
+
+    var shadowMap = arguments[3];
     var visibilityMap = ctx.createImageData( heightmap.width, heightmap.height );
     var pix = visibilityMap.data;
 
     for ( var i = 0; i < heightmap.width; ++i ) {
       for ( var j = 0; j < heightmap.height; ++j ) {
-        pix[ 4 * ( j * visibilityMap.width + i ) + 3 ] = isTargetVisible( heightmap, tankX, tankY, i, j ) ? 0 : 255;
+        if ( !shadowMap || shadowMap.data[ 4 * ( j * shadowMap.width + i ) + 3 ] === 0 ) {
+          pix[ 4 * ( j * visibilityMap.width + i ) + 3 ] = isTargetVisible( heightmap, tankX, tankY, i, j ) ? 0 : 255;
+        } else {
+          pix[ 4 * ( j * visibilityMap.width + i ) + 3 ] = 255;
+        }
       }
     }
+
+    el( 'output-timing' ).innerHTML = (Date.now() - old) + 'ms';
 
     return visibilityMap;
   }
@@ -128,6 +137,8 @@ window.onload = function() {
   }
 
   function createShadowMap( heightmap, sunVec ) {
+    var old = Date.now();
+
     var shadowMap = ctx.createImageData( heightmap.width, heightmap.height );
     var pix = shadowMap.data;
 
@@ -136,6 +147,8 @@ window.onload = function() {
         pix[ 4 * ( j * shadowMap.width + i ) + 3 ] = isSunVisible( heightmap, i, j, sunVec ) ? 0 : 192;
       }
     }
+
+    el( 'shadow-timing' ).innerHTML = (Date.now() - old) + 'ms';
 
     return shadowMap;
   }
@@ -183,7 +196,7 @@ window.onload = function() {
       ctx.drawImage( img, 0, 0 );
       ctx.putImageData( reticule, x - 1, y - 1 );
 
-      var visibilityMap = createVisibilityMap( heightmap, x, y );
+      var visibilityMap = createVisibilityMap( heightmap, x, y, shadowMap );
       outputCtx.putImageData( visibilityMap, 0, 0 );
       var outputAnchor = el( 'base64-output' );
       outputAnchor.href = outputCanvas.toDataURL( 'image/png' );
