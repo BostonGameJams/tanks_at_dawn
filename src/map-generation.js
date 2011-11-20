@@ -163,6 +163,8 @@ window.onload = function() {
 
     var shadowMap = createShadowMap( heightmap, { x: -0.3, y: -0.3, z: 0.5 } );
     shadowCtx.putImageData( shadowMap, 0, 0 );
+    var shadowAnchor = el( 'base64-shadow' );
+    shadowAnchor.href = shadowCanvas.toDataURL( 'image/png' );
 
     canvas.addEventListener( 'click', function( e ) {
       var x, y;

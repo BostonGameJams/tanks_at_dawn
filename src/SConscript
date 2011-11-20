@@ -9,6 +9,7 @@ compiled_files = [
 static_files = [
     'map-generation.js',
     'map-generation.html',
+    'style.css',
     'heightmap.png',
     ]
 
