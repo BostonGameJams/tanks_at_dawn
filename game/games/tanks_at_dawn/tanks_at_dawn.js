@@ -107,7 +107,7 @@ Tanks = (function() {
               y: 128
             });
             this.visibility_cloak = new VisibilityCloak(this, 'a_vis_map');
-            return [this.visibility_cloak, this.p1_tank, this.p2_tank];
+            return [this.p1_tank, this.p2_tank, this.visibility_cloak];
           },
           on_keys: {
             P: function() {
@@ -127,7 +127,7 @@ Tanks = (function() {
             this.tile_width = 16;
             return $em.listen('tanks::tile_selected', this, function(data) {
               var current_tile, distance, max_movement_allowed, new_tile;
-              max_movement_allowed = 2;
+              max_movement_allowed = 3;
               console.log('data', data);
               new_tile = {
                 x: data.tile_selected_x,

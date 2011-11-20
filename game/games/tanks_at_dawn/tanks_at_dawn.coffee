@@ -57,11 +57,7 @@ class Tanks extends Mantra.Game
 
             @visibility_cloak = new VisibilityCloak @, 'a_vis_map'
 
-            # @map = @loadMap()
-            # map_enities = []
-            # map_enities.push new Mantra.MapEntity @, { x: ent.x, y: ent.y, w: 32, h: 32, style: ent.obj.color } for ent in @map.objectMap()
-
-            [@visibility_cloak, @p1_tank, @p2_tank] #, map_enities...
+            [@p1_tank, @p2_tank, @visibility_cloak]
           on_keys:
             P: ->
               @game.showScreen 'pause'
@@ -76,7 +72,7 @@ class Tanks extends Mantra.Game
             @tile_width = 16
 
             $em.listen 'tanks::tile_selected', this, (data) ->
-              max_movement_allowed = 2
+              max_movement_allowed = 3
 
               console.log 'data', data
               new_tile =
