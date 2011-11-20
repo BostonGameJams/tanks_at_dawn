@@ -1,6 +1,8 @@
 class Tanks extends Mantra.Game
   constructor: (@options = {}) ->
     super _.defaults @options,
+      @first_init = true
+
       assets:
         root_path: '../game/games/tanks_at_dawn/'
         images:
@@ -71,18 +73,20 @@ class Tanks extends Mantra.Game
 
             @tile_width = 16
 
-            $em.listen 'tanks::tile_selected', this, (data) ->
-              console.log 'sleected!!'
-              if @state.current_state.match(/_turn/)
-                if @moveEm data
-                  @state.send_event "start_#{@current_tank.name}_shoot_round"
-              else if @state.current_state.match(/after_move/)
-                if @moveEm data
-                  other_name = _.without(['p1', 'p2'], @current_tank.name)[0]
-                  @state.send_event "ready_#{other_name}"
-              else if @state.current_state.match(/shoot/)
-                console.log 'pew pew'
-                @state.send_event "start_#{@current_tank.name}_after_move"
+            if @first_init
+              @first_init = false
+              $em.listen 'tanks::tile_selected', this, (data) ->
+                console.log 'sleected!!', @current_tank.name
+                if @state.current_state.match(/_turn/)
+                  if @moveEm data
+                    @state.send_event "start_#{@current_tank.name}_shoot_round"
+                else if @state.current_state.match(/after_move/)
+                  if @moveEm data
+                    other_name = _.without(['p1', 'p2'], @current_tank.name)[0]
+                    @state.send_event "ready_#{other_name}"
+                else if @state.current_state.match(/shoot/)
+                  console.log 'pew pew'
+                  @state.send_event "start_#{@current_tank.name}_after_move"
 
         gameover:
           elements: (options) ->
@@ -232,6 +236,7 @@ class Tanks extends Mantra.Game
 
     game = @
 
+    # @gridder.delegate '.gridder''click', (e) ->
     @gridder.click (e) ->
       x = e.pageX - @offsetLeft - $('#game_holder').position().left
       y = e.pageY - @offsetTop - $('#game_holder').position().top
@@ -240,14 +245,13 @@ class Tanks extends Mantra.Game
       # console.log $(e.target)
       $('.gridder .grid_square').removeClass('selected')
       $(e.target).addClass('selected')
-      # css
-        # backgroundColor: 'red'
 
       tile_selected_x = Math.floor x/game.tile_width
       tile_selected_y = Math.floor y/game.tile_width
 
       $('label.selected').text "Tile selected: #{tile_selected_x}, #{tile_selected_y}"
 
+      console.log 'triggering...'
       $em.trigger 'tanks::tile_selected',
         tile_selected_x: tile_selected_x,
         tile_selected_y: tile_selected_y

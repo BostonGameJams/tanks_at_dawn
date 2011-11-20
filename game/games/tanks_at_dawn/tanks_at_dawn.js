@@ -11,7 +11,7 @@ Tanks = (function() {
   __extends(Tanks, Mantra.Game);
   function Tanks(options) {
     this.options = options != null ? options : {};
-    Tanks.__super__.constructor.call(this, _.defaults(this.options, {
+    Tanks.__super__.constructor.call(this, _.defaults(this.options, this.first_init = true, {
       assets: {
         root_path: '../game/games/tanks_at_dawn/',
         images: {
@@ -125,23 +125,26 @@ Tanks = (function() {
             this.bg_song || (this.bg_song = AssetManager.getBackgroundSong('tank-music'));
             this.bg_song.play().mute();
             this.tile_width = 16;
-            return $em.listen('tanks::tile_selected', this, function(data) {
-              var other_name;
-              console.log('sleected!!');
-              if (this.state.current_state.match(/_turn/)) {
-                if (this.moveEm(data)) {
-                  return this.state.send_event("start_" + this.current_tank.name + "_shoot_round");
+            if (this.first_init) {
+              this.first_init = false;
+              return $em.listen('tanks::tile_selected', this, function(data) {
+                var other_name;
+                console.log('sleected!!', this.current_tank.name);
+                if (this.state.current_state.match(/_turn/)) {
+                  if (this.moveEm(data)) {
+                    return this.state.send_event("start_" + this.current_tank.name + "_shoot_round");
+                  }
+                } else if (this.state.current_state.match(/after_move/)) {
+                  if (this.moveEm(data)) {
+                    other_name = _.without(['p1', 'p2'], this.current_tank.name)[0];
+                    return this.state.send_event("ready_" + other_name);
+                  }
+                } else if (this.state.current_state.match(/shoot/)) {
+                  console.log('pew pew');
+                  return this.state.send_event("start_" + this.current_tank.name + "_after_move");
                 }
-              } else if (this.state.current_state.match(/after_move/)) {
-                if (this.moveEm(data)) {
-                  other_name = _.without(['p1', 'p2'], this.current_tank.name)[0];
-                  return this.state.send_event("ready_" + other_name);
-                }
-              } else if (this.state.current_state.match(/shoot/)) {
-                console.log('pew pew');
-                return this.state.send_event("start_" + this.current_tank.name + "_after_move");
-              }
-            });
+              });
+            }
           }
         },
         gameover: {
@@ -265,6 +268,7 @@ Tanks = (function() {
       tile_selected_x = Math.floor(x / game.tile_width);
       tile_selected_y = Math.floor(y / game.tile_width);
       $('label.selected').text("Tile selected: " + tile_selected_x + ", " + tile_selected_y);
+      console.log('triggering...');
       return $em.trigger('tanks::tile_selected', {
         tile_selected_x: tile_selected_x,
         tile_selected_y: tile_selected_y
