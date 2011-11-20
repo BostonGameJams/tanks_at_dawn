@@ -50,10 +50,10 @@ class Tanks extends Mantra.Game
         game:
           elements: ->
             @p1_tank = new Tanks.Tank @, color: 'red', name: 'p1'
-            @p1_tank.setCoords x: 8, y: 8
+            @p1_tank.setCoords x: 16, y: 16
 
             @p2_tank = new Tanks.Tank @, color: 'blue', name: 'p2'
-            @p2_tank.setCoords x: 32, y: 32
+            @p2_tank.setCoords x: 128, y: 128
 
             @visibility_cloak = new VisibilityCloak @, 'a_vis_map'
 
@@ -73,8 +73,10 @@ class Tanks extends Mantra.Game
             @bg_song ||= AssetManager.getBackgroundSong('tank-music')
             @bg_song.play().mute()
 
+            @tile_width = 16
+
             $em.listen 'tanks::tile_selected', this, (data) ->
-              max_movement_allowed = 4
+              max_movement_allowed = 2
 
               console.log 'data', data
               new_tile =
@@ -82,15 +84,15 @@ class Tanks extends Mantra.Game
                 y: data.tile_selected_y
 
               current_tile =
-                x: Math.floor @current_tank.x/8
-                y: Math.floor @current_tank.y/8
+                x: Math.floor @current_tank.x/@tile_width
+                y: Math.floor @current_tank.y/@tile_width
 
-              dist = Math.abs(current_tile.x - new_tile.x) + Math.abs(current_tile.y - new_tile.y)
               console.log 'current_tile, new_tile', current_tile, new_tile
-              console.log 'distance', dist
-              if dist <= max_movement_allowed
-                @current_tank.x = new_tile.x * 8
-                @current_tank.y = new_tile.y * 8
+              distance = Math.abs(current_tile.x - new_tile.x) + Math.abs(current_tile.y - new_tile.y)
+              console.log 'distance', distance
+              if distance <= max_movement_allowed
+                @current_tank.x = new_tile.x * @tile_width
+                @current_tank.y = new_tile.y * @tile_width
 
         gameover:
           elements: (options) ->
@@ -185,8 +187,10 @@ class Tanks extends Mantra.Game
   setupDOM: ->
     pixel_width  = 512
     pixel_height = 512
-    grid_width   = 64
-    grid_height  = 64
+    # grid_width   = 64
+    # grid_height  = 64
+    grid_width   = 32
+    grid_height  = 32
     @gridder =
       $('<div class="gridder">')
         .appendTo('#game_holder')
@@ -202,6 +206,8 @@ class Tanks extends Mantra.Game
       .css(position: 'fixed', right: '20px', bottom: '20px')
       .appendTo('body')
 
+    game = @
+
     @gridder.click (e) ->
       x = e.pageX - @offsetLeft - $('#game_holder').position().left
       y = e.pageY - @offsetTop - $('#game_holder').position().top
@@ -213,8 +219,8 @@ class Tanks extends Mantra.Game
       # css
         # backgroundColor: 'red'
 
-      tile_selected_x = Math.floor x/8
-      tile_selected_y = Math.floor y/8
+      tile_selected_x = Math.floor x/game.tile_width
+      tile_selected_y = Math.floor y/game.tile_width
 
       $('label.selected').text "Tile selected: #{tile_selected_x}, #{tile_selected_y}"
 

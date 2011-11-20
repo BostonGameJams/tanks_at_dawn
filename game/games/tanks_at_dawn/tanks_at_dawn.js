@@ -95,16 +95,16 @@ Tanks = (function() {
               name: 'p1'
             });
             this.p1_tank.setCoords({
-              x: 8,
-              y: 8
+              x: 16,
+              y: 16
             });
             this.p2_tank = new Tanks.Tank(this, {
               color: 'blue',
               name: 'p2'
             });
             this.p2_tank.setCoords({
-              x: 32,
-              y: 32
+              x: 128,
+              y: 128
             });
             this.visibility_cloak = new VisibilityCloak(this, 'a_vis_map');
             return [this.visibility_cloak, this.p1_tank, this.p2_tank];
@@ -124,24 +124,25 @@ Tanks = (function() {
           on_start: function() {
             this.bg_song || (this.bg_song = AssetManager.getBackgroundSong('tank-music'));
             this.bg_song.play().mute();
+            this.tile_width = 16;
             return $em.listen('tanks::tile_selected', this, function(data) {
-              var current_tile, dist, max_movement_allowed, new_tile;
-              max_movement_allowed = 4;
+              var current_tile, distance, max_movement_allowed, new_tile;
+              max_movement_allowed = 2;
               console.log('data', data);
               new_tile = {
                 x: data.tile_selected_x,
                 y: data.tile_selected_y
               };
               current_tile = {
-                x: Math.floor(this.current_tank.x / 8),
-                y: Math.floor(this.current_tank.y / 8)
+                x: Math.floor(this.current_tank.x / this.tile_width),
+                y: Math.floor(this.current_tank.y / this.tile_width)
               };
-              dist = Math.abs(current_tile.x - new_tile.x) + Math.abs(current_tile.y - new_tile.y);
               console.log('current_tile, new_tile', current_tile, new_tile);
-              console.log('distance', dist);
-              if (dist <= max_movement_allowed) {
-                this.current_tank.x = new_tile.x * 8;
-                return this.current_tank.y = new_tile.y * 8;
+              distance = Math.abs(current_tile.x - new_tile.x) + Math.abs(current_tile.y - new_tile.y);
+              console.log('distance', distance);
+              if (distance <= max_movement_allowed) {
+                this.current_tank.x = new_tile.x * this.tile_width;
+                return this.current_tank.y = new_tile.y * this.tile_width;
               }
             });
           }
@@ -229,11 +230,11 @@ Tanks = (function() {
     }, 'xxxxxxxxxxxxxxxx\nx    x x       x\nx      x       x\nx      xxxx    x\nx  x   x    r  x\nx      x       x\nx  o           x\nx            xxx\nx            xxx\nx      xx      x\nx      xx      x\nx      xx o    x\nx      xx      x\nx      xx o    x\nx      xx      x\nxxxxxxxxxxxxxxxx');
   };
   Tanks.prototype.setupDOM = function() {
-    var grid_height, grid_width, i, j, pixel_height, pixel_width;
+    var game, grid_height, grid_width, i, j, pixel_height, pixel_width;
     pixel_width = 512;
     pixel_height = 512;
-    grid_width = 64;
-    grid_height = 64;
+    grid_width = 32;
+    grid_height = 32;
     this.gridder = $('<div class="gridder">').appendTo('#game_holder').hide();
     for (i = 0; 0 <= grid_width ? i < grid_width : i > grid_width; 0 <= grid_width ? i++ : i--) {
       for (j = 0; 0 <= grid_height ? j < grid_height : j > grid_height; 0 <= grid_height ? j++ : j--) {
@@ -245,14 +246,15 @@ Tanks = (function() {
       right: '20px',
       bottom: '20px'
     }).appendTo('body');
+    game = this;
     return this.gridder.click(function(e) {
       var tile_selected_x, tile_selected_y, x, y;
       x = e.pageX - this.offsetLeft - $('#game_holder').position().left;
       y = e.pageY - this.offsetTop - $('#game_holder').position().top;
       $('.gridder .grid_square').removeClass('selected');
       $(e.target).addClass('selected');
-      tile_selected_x = Math.floor(x / 8);
-      tile_selected_y = Math.floor(y / 8);
+      tile_selected_x = Math.floor(x / game.tile_width);
+      tile_selected_y = Math.floor(y / game.tile_width);
       $('label.selected').text("Tile selected: " + tile_selected_x + ", " + tile_selected_y);
       return $em.trigger('tanks::tile_selected', {
         tile_selected_x: tile_selected_x,

@@ -8,7 +8,7 @@ class Tanks.Tank extends Mantra.Entity
     @name = @opts.name
     @speed = 8
     [@colx, @coly] = [16, 16]
-    [@colw, @colh] = [8, 8]
+    [@colw, @colh] = [16, 16]
 
   update: ->
     # Mantra.Controls.moveByKeys.call @ if @isMyTurn()
