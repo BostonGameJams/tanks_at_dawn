@@ -127,6 +127,7 @@ class Tanks extends Mantra.Game
         @current_tank = @p1_tank
         @showScreen 'game'
         @gridder.show()
+        game.redrawMap()
       ),
       'p1_turn'
 
@@ -158,6 +159,7 @@ class Tanks extends Mantra.Game
         @current_tank = @p2_tank
         @showScreen 'game'
         @gridder.show()
+        game.redrawMap()
       ),
       'p2_turn'
 

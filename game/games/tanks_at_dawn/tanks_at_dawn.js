@@ -184,7 +184,8 @@
       this.state.add_transition('start_p1_turn', ['p1_get_ready'], (function() {
         _this.current_tank = _this.p1_tank;
         _this.showScreen('game');
-        return _this.gridder.show();
+        _this.gridder.show();
+        return game.redrawMap();
       }), 'p1_turn');
       this.state.add_transition('start_p1_shoot_round', ['p1_turn'], (function() {
         return console.log('Starting P1 shoot round');
@@ -199,7 +200,8 @@
       this.state.add_transition('start_p2_turn', ['p2_get_ready'], (function() {
         _this.current_tank = _this.p2_tank;
         _this.showScreen('game');
-        return _this.gridder.show();
+        _this.gridder.show();
+        return game.redrawMap();
       }), 'p2_turn');
       this.state.add_transition('start_p2_shoot_round', ['p2_turn'], (function() {
         return console.log('Starting P2 shoot round');
