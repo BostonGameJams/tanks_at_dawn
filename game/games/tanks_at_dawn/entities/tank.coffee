@@ -6,12 +6,12 @@ class Tanks.Tank extends Mantra.Entity
 
     super game, null, 0
     @name = @opts.name
-    @speed = 5
+    @speed = 8
     [@colx, @coly] = [16, 16]
     [@colw, @colh] = [8, 8]
 
   update: ->
-    Mantra.Controls.moveByKeys.call @ if @isMyTurn()
+    # Mantra.Controls.moveByKeys.call @ if @isMyTurn()
     @shoot() if @game.click and @isMyTurn()
 
   draw: (context) ->
@@ -20,12 +20,7 @@ class Tanks.Tank extends Mantra.Entity
       w: @colw, h: @colh
       style: @opts.color
 
-    if @game.draw_collision_boxes
-      Mantra.Canvas.rectangle context,
-        x: @x - @colx,  y: @y - @coly,
-        w: @colw, h: @colh
-        hollow: true
-        style:  'white'
+    super()
 
   setCoords: (coords) ->
     @x = coords.x

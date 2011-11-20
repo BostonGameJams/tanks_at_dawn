@@ -8,7 +8,14 @@ class Mantra.Entity
   update: ->
     # timer.tick() for timer in @timers
 
-  draw:   -> null
+  draw: ->
+    if @game.draw_collision_boxes
+      Mantra.Canvas.rectangle context,
+        x: @x - @colx,  y: @y - @coly,
+        w: @colw, h: @colh
+        hollow: true
+        style:  'white'
+
   cull:   -> null
 
   addTimer: (timer) -> @timers.push timer

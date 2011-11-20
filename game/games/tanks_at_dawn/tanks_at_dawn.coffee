@@ -1,7 +1,5 @@
 class Tanks extends Mantra.Game
   constructor: (@options = {}) ->
-    @player_name = 'Player 1'
-
     super _.defaults @options,
       assets:
         root_path: '../game/games/tanks_at_dawn/'
@@ -10,8 +8,6 @@ class Tanks extends Mantra.Game
         sounds:
           'bullet_shot' : 'simple_shot.mp3'
           'bullet-boom' : 'bullet_boom.mp3'
-          # 'tank-music'  : 'TankMusic1_edit_loop.mp3'
-
         music:
           'tank-music' : 'TankMusic1_edit_loop.mp3'
 
@@ -25,7 +21,6 @@ class Tanks extends Mantra.Game
         intro:
           preset: 'intro'
           onUpdate: -> @state.send_event 'ready_p1'
-          text:   -> "#{@player_name}, find and destroy your opponent!"
         p1_ready:
           elements: (options) ->
             ui_pane = new Mantra.UIPane @
@@ -59,7 +54,6 @@ class Tanks extends Mantra.Game
 
             @p2_tank = new Tanks.Tank @, color: 'blue', name: 'p2'
             @p2_tank.setCoords x: 32, y: 32
-
 
             @visibility_cloak = new VisibilityCloak @, 'a_vis_map'
 

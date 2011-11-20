@@ -11,7 +11,6 @@ Tanks = (function() {
   __extends(Tanks, Mantra.Game);
   function Tanks(options) {
     this.options = options != null ? options : {};
-    this.player_name = 'Player 1';
     Tanks.__super__.constructor.call(this, _.defaults(this.options, {
       assets: {
         root_path: '../game/games/tanks_at_dawn/',
@@ -37,9 +36,6 @@ Tanks = (function() {
           preset: 'intro',
           onUpdate: function() {
             return this.state.send_event('ready_p1');
-          },
-          text: function() {
-            return "" + this.player_name + ", find and destroy your opponent!";
           }
         },
         p1_ready: {

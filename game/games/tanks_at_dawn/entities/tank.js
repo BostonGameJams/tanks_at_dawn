@@ -17,14 +17,11 @@ Tanks.Tank = (function() {
     });
     Tank.__super__.constructor.call(this, game, null, 0);
     this.name = this.opts.name;
-    this.speed = 5;
+    this.speed = 8;
     _ref = [16, 16], this.colx = _ref[0], this.coly = _ref[1];
     _ref2 = [8, 8], this.colw = _ref2[0], this.colh = _ref2[1];
   }
   Tank.prototype.update = function() {
-    if (this.isMyTurn()) {
-      Mantra.Controls.moveByKeys.call(this);
-    }
     if (this.game.click && this.isMyTurn()) {
       return this.shoot();
     }
@@ -37,16 +34,7 @@ Tanks.Tank = (function() {
       h: this.colh,
       style: this.opts.color
     });
-    if (this.game.draw_collision_boxes) {
-      return Mantra.Canvas.rectangle(context, {
-        x: this.x - this.colx,
-        y: this.y - this.coly,
-        w: this.colw,
-        h: this.colh,
-        hollow: true,
-        style: 'white'
-      });
-    }
+    return Tank.__super__.draw.call(this);
   };
   Tank.prototype.setCoords = function(coords) {
     this.x = coords.x;

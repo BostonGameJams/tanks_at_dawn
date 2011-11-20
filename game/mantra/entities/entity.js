@@ -15,7 +15,16 @@ Mantra.Entity = (function() {
   }
   Entity.prototype.update = function() {};
   Entity.prototype.draw = function() {
-    return null;
+    if (this.game.draw_collision_boxes) {
+      return Mantra.Canvas.rectangle(context, {
+        x: this.x - this.colx,
+        y: this.y - this.coly,
+        w: this.colw,
+        h: this.colh,
+        hollow: true,
+        style: 'white'
+      });
+    }
   };
   Entity.prototype.cull = function() {
     return null;
