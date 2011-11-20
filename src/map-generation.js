@@ -186,6 +186,9 @@ window.onload = function() {
   var shadowCanvas = el( 'shadow-canvas' );
   var shadowCtx = shadowCanvas.getContext( '2d' );
 
+  var resizeCanvas = el( 'resized-canvas' );
+  var resizeCtx = resizeCanvas.getContext( '2d' );
+
   var heightmap;
   var reticule = ctx.createImageData( 3, 3 );
   for ( var index = 0; index < reticule.width * reticule.height; ++index ) {
@@ -209,6 +212,9 @@ window.onload = function() {
     var outputAnchor = el( 'base64-output' );
     outputAnchor.href = outputCanvas.toDataURL( 'image/png' );
     outputCtx.putImageData( reticule, tankPositionX - 1, tankPositionY - 1 );
+
+    resizeCtx.clearRect( 0, 0, 512, 512 );
+    resizeCtx.drawImage( outputCanvas, 0, 0, 512, 512 );
   }
 
   var img = new Image();
