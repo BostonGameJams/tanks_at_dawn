@@ -91,7 +91,7 @@ window.onload = function() {
       visibilityMap = ctx.createImageData( heightmap.width, heightmap.height ),
       pix = visibilityMap.data,
       opaque = 128,
-      minSightRange = sunZ * 2.5,
+      minSightRange = Math.asin( normalize({ x: sunX, y: sunY, z: sunZ }).z ) * 20,
       i, j, pixelIndex;
 
     for ( i = 0; i < heightmap.width; ++i ) {
@@ -107,7 +107,8 @@ window.onload = function() {
             //   pix[ pixelIndex + 3 ] = 0;
             // }
 
-            if ( !( Math.abs( tankX - i ) <= minSightRange && Math.abs( tankY - j ) <= minSightRange ) ) {
+            // if ( !( Math.abs( tankX - i ) <= minSightRange && Math.abs( tankY - j ) <= minSightRange ) ) {
+            if ( Math.sqrt( Math.pow( tankX - i, 2 ) + Math.pow( tankY - j, 2 ) ) > minSightRange ) {
               pix[ pixelIndex + 0 ] = 255;
               pix[ pixelIndex + 3 ] = opaque;
             }
