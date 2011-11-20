@@ -33,7 +33,7 @@ Mantra.Game = (function() {
       name: 'initialized'
     });
     this.state.add_transition('start', 'initialized', null, 'started');
-    this.state.add_transition('lose', 'started', (__bind(function() {
+    this.state.add_transition_from_any_state('lose', (__bind(function() {
       return this.options.process_game_over.call(this);
     }, this)), 'game_lost');
     this.state.add_transition('restart', ['started', 'game_won', 'game_lost'], null, 'started');

@@ -57,11 +57,12 @@ Tanks.Tank = (function() {
     return this.game.state.current_state === ("" + this.name + "_turn");
   };
   Tank.prototype.shoot = function() {
-    this.game.screens.game.add(new EBF.DefenderBullet(this.game, {
+    this.game.screens.game.add(new Tanks.DefenderBullet(this.game, {
       x: this.x,
       y: this.y,
       angle: Math.atan2(this.game.mouse.y - this.y, this.game.mouse.x - this.x),
-      radial_offset: 19
+      radial_offset: 19,
+      fired_by: this
     }));
     return AssetManager.playSound('bullet_shot');
   };

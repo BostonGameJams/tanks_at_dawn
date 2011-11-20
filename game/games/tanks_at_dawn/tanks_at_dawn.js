@@ -6,7 +6,7 @@ var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, par
   child.prototype = new ctor;
   child.__super__ = parent.prototype;
   return child;
-}, __slice = Array.prototype.slice, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+}, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __slice = Array.prototype.slice;
 Tanks = (function() {
   __extends(Tanks, Mantra.Game);
   function Tanks(options) {
@@ -19,9 +19,17 @@ Tanks = (function() {
           'a_vis_map': 'a_vis_map.png'
         },
         sounds: {
-          'bullet_shot': 'simple_shot.mp3'
+          'bullet_shot': 'simple_shot.mp3',
+          'bullet-boom': 'bullet_boom.mp3'
+        },
+        music: {
+          'tank-music': 'TankMusic1_edit_loop.mp3'
         }
       },
+      process_game_over: __bind(function(data) {
+        this.winner = data.winner;
+        return this.showScreen('gameover');
+      }, this),
       screens: {
         loading: 'preset',
         pause: 'preset',
@@ -121,16 +129,46 @@ Tanks = (function() {
           },
           on_keys: {
             P: function() {
-              return this.game.showScreen('pause');
+              this.game.showScreen('pause');
+              return this.game.bg_song.pause();
             },
             ' ': function() {
               return this.game.state.send_event((this.game.state.current_state === 'p1_turn' ? 'ready_p2' : 'ready_p1'));
+            },
+            M: function() {
+              return this.game.bg_song.toggleMute();
+            }
+          },
+          on_start: function() {}
+        },
+        gameover: {
+          elements: function(options) {
+            var ui_pane;
+            ui_pane = new Mantra.UIPane(this);
+            ui_pane.addTextItem({
+              color: 'orange',
+              x: 'centered',
+              y: 'centered',
+              text: function() {
+                return "" + this.game.winner + " #WINNER";
+              }
+            });
+            return [ui_pane];
+          },
+          update: function() {
+            if (this.click) {
+              return this.state.send_event('ready_p1');
+            }
+          },
+          on_keys: {
+            ' ': function() {
+              return this.game.state.send_event('ready_p1');
             }
           }
         }
       }
     }));
-    this.state.add_transition('ready_p1', ['started', 'p2_turn'], (__bind(function() {
+    this.state.add_transition('ready_p1', ['started', 'game_lost', 'p2_turn', 'p1_won', 'p2_won'], (__bind(function() {
       return this.showScreen('p1_ready');
     }, this)), 'p1_get_ready');
     this.state.add_transition('start_p1_turn', ['p1_get_ready'], (__bind(function() {
@@ -142,6 +180,16 @@ Tanks = (function() {
     this.state.add_transition('start_p2_turn', ['p2_get_ready'], (__bind(function() {
       return this.showScreen('game');
     }, this)), 'p2_turn');
+    this.state.add_transition('p1_wins', ['p1_turn'], (__bind(function() {
+      return this.options.process_game_over.call(this, {
+        winner: 'p1'
+      });
+    }, this)), 'p1_won');
+    this.state.add_transition('p2_wins', ['p2_turn'], (__bind(function() {
+      return this.options.process_game_over.call(this, {
+        winner: 'p2'
+      });
+    }, this)), 'p2_won');
   }
   Tanks.prototype.loadMap = function() {
     return new Mantra.Map({

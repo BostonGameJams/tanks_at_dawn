@@ -8,6 +8,7 @@ class Bullet extends Mantra.Entity
     @angle           = options.angle
     @speed           = options.speed           ?= 250
     @radial_distance = options.radial_distance ?= 95
+    @fired_by        = options.fired_by
 
     @explodesAt      = options.explodesAt
     @explode         = options.explode         if options.explode?

@@ -34,3 +34,14 @@ class Mantra.Entity
   setCoords: (coords) ->
     @x = coords.x
     @y = coords.y
+
+  collidesWith: (entity) ->
+    @isCollide @, entity
+
+  isCollide: (a, b) ->
+    !(
+      ((a.y + a.colh) < (b.y)) ||
+      (a.y > (b.y + b.colh)) ||
+      ((a.x + a.colw) < b.x) ||
+      (a.x > (b.x + b.colw))
+    )

@@ -43,8 +43,8 @@ class Mantra.Screen extends EntitySet
       on_keys:
         P: ->
           @game.showScreen @options.gameScreen || 'game'
-          @game.bg_song.resume() if @game.bg_song
-
+          @game.bg_song.play() if @game.bg_song
+  
   constructor: (@game, @name, @options = {}) ->
     @key_map = {}
     super @game
@@ -82,8 +82,8 @@ class Mantra.Screen extends EntitySet
     @show()
     @unpause()
 
-  onStart:  -> null
-  onResume: -> null
+  onStart:  -> @options.on_start.call @game if @options.on_start?
+  onResume: -> @options.on_start.call @game if @options.on_start?
 
   addKeyMappings: (key_mappings) -> _.extend @key_map, key_mappings
 

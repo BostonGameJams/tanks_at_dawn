@@ -67,7 +67,7 @@ Mantra.Screen = (function() {
         P: function() {
           this.game.showScreen(this.options.gameScreen || 'game');
           if (this.game.bg_song) {
-            return this.game.bg_song.resume();
+            return this.game.bg_song.play();
           }
         }
       }
@@ -136,10 +136,14 @@ Mantra.Screen = (function() {
     return this.unpause();
   };
   Screen.prototype.onStart = function() {
-    return null;
+    if (this.options.on_start != null) {
+      return this.options.on_start.call(this.game);
+    }
   };
   Screen.prototype.onResume = function() {
-    return null;
+    if (this.options.on_start != null) {
+      return this.options.on_start.call(this.game);
+    }
   };
   Screen.prototype.addKeyMappings = function(key_mappings) {
     return _.extend(this.key_map, key_mappings);

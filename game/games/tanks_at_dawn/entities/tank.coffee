@@ -37,10 +37,11 @@ class Tanks.Tank extends Mantra.Entity
     @game.state.current_state == "#{@name}_turn"
 
   shoot: ->
-    @game.screens.game.add new EBF.DefenderBullet @game,
+    @game.screens.game.add new Tanks.DefenderBullet @game,
       x:             @x
       y:             @y
       angle:         Math.atan2 @game.mouse.y - @y, @game.mouse.x - @x
       radial_offset: 19
+      fired_by:      @
 
     AssetManager.playSound 'bullet_shot'

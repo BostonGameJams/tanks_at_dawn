@@ -19,7 +19,7 @@ class Mantra.Game
 
     @state = new FSM 'initialized', { name: 'initialized' }
     @state.add_transition 'start', 'initialized', null,                      'started'
-    @state.add_transition 'lose',  'started', (=> @options.process_game_over.call @), 'game_lost'
+    @state.add_transition_from_any_state 'lose', (=> @options.process_game_over.call @), 'game_lost'
     @state.add_transition 'restart', ['started', 'game_won', 'game_lost'], null, 'started'
 
     [@surfaceWidth, @surfaceHeight, @halfSurfaceWidth, @halfSurfaceHeight] = [null, null, null, null]
