@@ -1,7 +1,7 @@
 Tanks at Dawn
 =============
 
-#### HTML5 GameJam ####
+#### A Fall 2011 Boston HTML5 Game Jam Game ####
 
 ##Heightmaps, Shadow Maps, and Visibility Maps##
 
