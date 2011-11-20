@@ -52,7 +52,8 @@ class Mantra.Screen extends EntitySet
     # If a preset is specified, we'll first load the preset's settings for this screen
     if @options.preset and preset = Mantra.Screen.presets[@options.preset]
       @add pane for pane in preset.panes.apply(@, [@options]) if preset.panes
-      @onUpdate = preset.onUpdate if preset.onUpdate
+      @onUpdate = @options.onUpdate
+      @onUpdate ||= preset.onUpdate if preset.onUpdate
       @addKeyMappings preset.on_keys if preset.on_keys
 
     @add (@options.elements.call(@game))... if @options.elements

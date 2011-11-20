@@ -27,8 +27,51 @@ Tanks = (function() {
         pause: 'preset',
         intro: {
           preset: 'intro',
+          onUpdate: function() {
+            return this.state.send_event('ready_p1');
+          },
           text: function() {
             return "" + this.player_name + ", find and destroy your opponent!";
+          }
+        },
+        p1_ready: {
+          elements: function(options) {
+            var ui_pane;
+            ui_pane = new Mantra.UIPane(this);
+            ui_pane.addTextItem({
+              color: 'orange',
+              x: 'centered',
+              y: 'centered',
+              text: function() {
+                return 'P1, get ready!';
+              }
+            });
+            return [ui_pane];
+          },
+          update: function() {
+            if (this.click) {
+              return this.state.send_event('start_p1_turn');
+            }
+          }
+        },
+        p2_ready: {
+          elements: function(options) {
+            var ui_pane;
+            ui_pane = new Mantra.UIPane(this);
+            ui_pane.addTextItem({
+              color: 'orange',
+              x: 'centered',
+              y: 'centered',
+              text: function() {
+                return 'P2, get ready!';
+              }
+            });
+            return [ui_pane];
+          },
+          update: function() {
+            if (this.click) {
+              return this.state.send_event('start_p2_turn');
+            }
           }
         },
         game: {
@@ -69,16 +112,25 @@ Tanks = (function() {
           on_keys: {
             P: function() {
               return this.game.showScreen('pause');
+            },
+            ' ': function() {
+              return this.game.state.send_event((this.game.state.current_state === 'p1_turn' ? 'ready_p2' : 'ready_p1'));
             }
           }
         }
       }
     }));
-    this.state.add_transition('start_p1_turn', ['started', 'p2_turn'], (__bind(function() {
-      return null;
+    this.state.add_transition('ready_p1', ['started', 'p2_turn'], (__bind(function() {
+      return this.showScreen('p1_ready');
+    }, this)), 'p1_get_ready');
+    this.state.add_transition('start_p1_turn', ['p1_get_ready'], (__bind(function() {
+      return this.showScreen('game');
     }, this)), 'p1_turn');
-    this.state.add_transition('start_p2_turn', ['started', 'p1_turn'], (__bind(function() {
-      return null;
+    this.state.add_transition('ready_p2', ['p1_turn'], (__bind(function() {
+      return this.showScreen('p2_ready');
+    }, this)), 'p2_get_ready');
+    this.state.add_transition('start_p2_turn', ['p2_get_ready'], (__bind(function() {
+      return this.showScreen('game');
     }, this)), 'p2_turn');
   }
   Tanks.prototype.loadMap = function() {
@@ -109,7 +161,7 @@ Tanks = (function() {
       global: 'debug',
       sound: 'debug',
       assets: 'debug',
-      input: 'info',
+      input: 'debug',
       game: 'info'
     });
   };

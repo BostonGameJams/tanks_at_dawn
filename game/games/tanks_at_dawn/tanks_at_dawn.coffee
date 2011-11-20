@@ -15,7 +15,30 @@ class Tanks extends Mantra.Game
         pause:   'preset'
         intro:
           preset: 'intro'
+          onUpdate: -> @state.send_event 'ready_p1'
           text:   -> "#{@player_name}, find and destroy your opponent!"
+        p1_ready:
+          elements: (options) ->
+            ui_pane = new Mantra.UIPane @
+            ui_pane.addTextItem
+              color: 'orange'
+              x:     'centered'
+              y:     'centered'
+              text:  -> 'P1, get ready!'
+            [ui_pane]
+          update: ->
+            @state.send_event 'start_p1_turn' if @click
+        p2_ready:
+          elements: (options) ->
+            ui_pane = new Mantra.UIPane @
+            ui_pane.addTextItem
+              color: 'orange'
+              x:     'centered'
+              y:     'centered'
+              text:  -> 'P2, get ready!'
+            [ui_pane]
+          update: ->
+            @state.send_event 'start_p2_turn' if @click
         game:
           elements: ->
             @p1_tank = new Tanks.Tank @, color: 'red', name: 'p1'
@@ -32,10 +55,13 @@ class Tanks extends Mantra.Game
 
             [@visibility_cloak, @p1_tank, @p2_tank, map_enities...]
           on_keys:
-            P: -> @game.showScreen 'pause'
+            P:     -> @game.showScreen 'pause'
+            ' ':   -> @game.state.send_event (if @game.state.current_state == 'p1_turn' then 'ready_p2' else 'ready_p1')
 
-    @state.add_transition 'start_p1_turn', ['started', 'p2_turn'], (=> null), 'p1_turn'
-    @state.add_transition 'start_p2_turn', ['started', 'p1_turn'], (=> null), 'p2_turn'
+    @state.add_transition 'ready_p1',      ['started', 'p2_turn'], (=> @showScreen 'p1_ready'), 'p1_get_ready'
+    @state.add_transition 'start_p1_turn', ['p1_get_ready'],       (=> @showScreen 'game'),     'p1_turn'
+    @state.add_transition 'ready_p2',      ['p1_turn'],            (=> @showScreen 'p2_ready'), 'p2_get_ready'
+    @state.add_transition 'start_p2_turn', ['p2_get_ready'],       (=> @showScreen 'game'),     'p2_turn'
 
   loadMap: -> new Mantra.Map
     map_width:    16
@@ -73,7 +99,7 @@ class Tanks extends Mantra.Game
       global: 'debug'
       sound:  'debug'
       assets: 'debug'
-      input:  'info'
+      input:  'debug'
       game:   'info'
 
 root.Tanks = Tanks
