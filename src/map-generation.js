@@ -90,21 +90,58 @@ window.onload = function() {
       shadowMap = arguments[3],
       visibilityMap = ctx.createImageData( heightmap.width, heightmap.height ),
       pix = visibilityMap.data,
+      opaque = 128,
+      minSightRange = sunZ * 2.5,
       i, j, pixelIndex;
 
     for ( i = 0; i < heightmap.width; ++i ) {
       for ( j = 0; j < heightmap.height; ++j ) {
-        pixelIndex = 4 * ( j * heightmap.width + i ) + 3;
+        pixelIndex = 4 * ( j * heightmap.width + i );
 
-        // default behavior is to calculate visibility on all pixels
-        if ( shadowMap == null || shadowMap.data[ pixelIndex ] === 0 ) {
-          pix[ pixelIndex ] = isTargetVisible( heightmap, tankX, tankY, i, j ) ? 0 : 255;
+        if ( shadowMap != null ) {
+          if ( shadowMap.data[ pixelIndex + 3 ] !== 0 ) {
+            // pix[ pixelIndex + 0 ] = 255;
+            // pix[ pixelIndex + 3 ] = opaque;
+
+            // if ( Math.abs( tankX - i ) <= minSightRange && Math.abs( tankY - j ) <= minSightRange ) {
+            //   pix[ pixelIndex + 3 ] = 0;
+            // }
+
+            if ( !( Math.abs( tankX - i ) <= minSightRange && Math.abs( tankY - j ) <= minSightRange ) ) {
+              pix[ pixelIndex + 0 ] = 255;
+              pix[ pixelIndex + 3 ] = opaque;
+            }
+          }
         }
 
-        // if a shadow map is given, ignore places in shadow
-        else {
-          pix[ pixelIndex ] = 255;
+        if ( !isTargetVisible( heightmap, tankX, tankY, i, j ) ) {
+          pix[ pixelIndex + 2 ] = 255;
+          pix[ pixelIndex + 3 ] = opaque;
         }
+
+        // if ( shadowMap != null ) {
+        //   if ( isTargetVisible( heightmap, tankX, tankY, i, j ) ) {
+        //     if ( shadowMap.data[ pixelIndex + 3 ] !== 0 ) {
+        //       pix[ pixelIndex + 0 ] = 255;
+        //       pix[ pixelIndex + 3 ] = opaque;
+        //     }
+        //   } else {
+        //     pix[ pixelIndex + 2 ] = 255;
+        //     pix[ pixelIndex + 3 ] = opaque;
+        //   }
+        // }
+
+        // // default behavior is to calculate visibility on all pixels
+        // if ( shadowMap == null || shadowMap.data[ pixelIndex ] === 0 ) {
+        //   pix[ pixelIndex + 2 ] = 255;
+        //   pix[ pixelIndex + 3 ] = isTargetVisible( heightmap, tankX, tankY, i, j ) ? 0 : opaque;
+        // }
+
+        // // if a shadow map is given, ignore places in shadow
+        // else {
+        //   pix[ pixelIndex + 0 ] = 255;
+        //   pix[ pixelIndex + 3 ] = opaque;
+        // }
       }
     }
 
@@ -186,6 +223,10 @@ window.onload = function() {
     };
   }
 
+  function dot( a, b ) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+  }
+
   function normalize( v ) {
     var length = Math.sqrt( v.x * v.x + v.y * v.y + v.z * v.z );
     var invLenth = 1 / length;
@@ -196,38 +237,46 @@ window.onload = function() {
     };
   }
 
+  function getNormalAt( heightmap, i, j ) {
+    var pixelIndex = 4 * ( j * heightmap.width + i );
+    var height = heightmap.data[ pixelIndex ];
+    var leftHeight = ( i === 0 )
+      ? heightmap.data[ pixelIndex ]
+      : heightmap.data[ 4 * ( j * heightmap.width + i - 1 ) ];
+    var upHeight = ( j === 0 )
+      ? heightmap.data[ pixelIndex ]
+      : heightmap.data[ 4 * (( j - 1 ) * heightmap.width + i ) ];
+
+    var a = {
+      x: -1,
+      y: 0,
+      z: (leftHeight - height) * heightScale
+    };
+
+    var b = {
+      x: 0,
+      y: -1,
+      z: (upHeight - height) * heightScale
+    };
+
+    var axb = cross( a, b );
+    return normalize( axb );
+  }
+
   function createNormalMap( heightmap ) {
     var
       startTime = Date.now(),
       normalMap = ctx.createImageData( heightmap.width, heightmap.height ),
       pix = normalMap.data,
+      sunVec = { x: sunX, y: sunY, z: sunZ },
       i, j;
 
     for ( i = 0; i < heightmap.width; ++i ) {
       for ( j = 0; j < heightmap.height; ++j ) {
         var pixelIndex = 4 * ( j * heightmap.width + i );
-        var height = heightmap.data[ pixelIndex ];
-        var leftHeight = ( i === 0 )
-          ? heightmap.data[ pixelIndex ]
-          : heightmap.data[ 4 * ( j * heightmap.width + i - 1 ) ];
-        var upHeight = ( j === 0 )
-          ? heightmap.data[ pixelIndex ]
-          : heightmap.data[ 4 * (( j - 1 ) * heightmap.width + i ) ];
+        var normal = getNormalAt( heightmap, i, j );
 
-        var a = {
-          x: -1,
-          y: 0,
-          z: (leftHeight - height) * heightScale
-        };
-
-        var b = {
-          x: 0,
-          y: -1,
-          z: (upHeight - height) * heightScale
-        };
-
-        var axb = cross( a, b );
-        var normal = normalize( axb );
+        // var lighting = dot( normal, normalize( sunVec ) ) * 255;
 
         var r = normal.x * 128 + 128;
         var g = normal.y * 128 + 128;
@@ -237,6 +286,11 @@ window.onload = function() {
         pix[ pixelIndex + 1 ] = g;
         pix[ pixelIndex + 2 ] = b;
         pix[ pixelIndex + 3 ] = 255;
+
+        // pix[ pixelIndex + 0 ] = lighting;
+        // pix[ pixelIndex + 1 ] = lighting;
+        // pix[ pixelIndex + 2 ] = lighting;
+        // pix[ pixelIndex + 3 ] = 255;
       }
     }
 
@@ -245,14 +299,43 @@ window.onload = function() {
     return normalMap;
   }
 
+  function renderMap( heightmap ) {
+    var
+      startTime = Date.now(),
+      render = ctx.createImageData( heightmap.width, heightmap.height ),
+      pix = render.data,
+      sunVec = { x: sunX, y: sunY, z: sunZ },
+      i, j;
+
+    for ( i = 0; i < heightmap.width; ++i ) {
+      for ( j = 0; j < heightmap.height; ++j ) {
+        var pixelIndex = 4 * ( j * heightmap.width + i );
+        var normal = getNormalAt( heightmap, i, j );
+        var lighting = dot( normal, normalize( sunVec ) ) * 255;
+
+        pix[ pixelIndex + 0 ] = lighting;
+        pix[ pixelIndex + 1 ] = lighting;
+        pix[ pixelIndex + 2 ] = lighting;
+        pix[ pixelIndex + 3 ] = 255;
+      }
+    }
+
+    el( 'render-timing' ).innerHTML = (Date.now() - startTime) + 'ms';
+
+    return render;
+  }
+
   var canvas = el( 'input-canvas' );
   var ctx = canvas.getContext( '2d' );
 
   var outputCanvas = el( 'output-canvas' );
   var outputCtx = outputCanvas.getContext( '2d' );
 
-  var normalCanvas = el ( 'normal-canvas' );
+  var normalCanvas = el( 'normal-canvas' );
   var normalCtx = normalCanvas.getContext( '2d' );
+
+  var renderCanvas = el( 'render-canvas' );
+  var renderCtx = renderCanvas.getContext( '2d' );
 
   var shadowMap;
   var shadowCanvas = el( 'shadow-canvas' );
@@ -262,7 +345,7 @@ window.onload = function() {
   var resizeCtx = resizeCanvas.getContext( '2d' );
 
   var heightmap;
-  var reticule = ctx.createImageData( 3, 3 );
+  var reticule = ctx.createImageData( 1, 1 );
   for ( var index = 0; index < reticule.width * reticule.height; ++index ) {
     reticule.data[ 4 * index ] = 255;
     reticule.data[ 4 * index + 3 ] = 255;
@@ -273,19 +356,20 @@ window.onload = function() {
   function redraw() {
     // draw the red dot where we clicked
     ctx.drawImage( img, 0, 0 );
-    ctx.putImageData( reticule, tankPositionX - 1, tankPositionY - 1 );
+    ctx.putImageData( reticule, tankPositionX, tankPositionY );
 
     // compute and blit the visibility map
-    var visibilityMap = createVisibilityMap( heightmap, tankPositionX, tankPositionY// , shadowMap
-                                           );
+    var visibilityMap = createVisibilityMap( heightmap, tankPositionX, tankPositionY, shadowMap );
     outputCtx.putImageData( visibilityMap, 0, 0 );
 
     // link the visibility map
     var outputAnchor = el( 'base64-output' );
     outputAnchor.href = outputCanvas.toDataURL( 'image/png' );
-    outputCtx.putImageData( reticule, tankPositionX - 1, tankPositionY - 1 );
+    outputCtx.putImageData( reticule, tankPositionX, tankPositionY );
 
     resizeCtx.clearRect( 0, 0, 512, 512 );
+    resizeCtx.drawImage( renderCanvas, 0, 0, 512, 512 );
+    resizeCtx.drawImage( shadowCanvas, 0, 0, 512, 512 );
     resizeCtx.drawImage( outputCanvas, 0, 0, 512, 512 );
   }
 
@@ -301,6 +385,9 @@ window.onload = function() {
 
     var normalAnchor = el( 'base64-normal' );
     normalAnchor.href = normalCanvas.toDataURL( 'image/png' );
+
+    var render = renderMap( heightmap );
+    renderCtx.putImageData( render, 0, 0 );
 
     // compute and blit the shadow map
     shadowMap = createShadowMap( heightmap, { x: sunX, y: sunY, z: sunZ } );
