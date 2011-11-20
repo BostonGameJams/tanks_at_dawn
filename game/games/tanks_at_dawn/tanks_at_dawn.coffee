@@ -50,7 +50,7 @@ class Tanks extends Mantra.Game
         game:
           elements: ->
             @p1_tank = new Tanks.Tank @, color: 'red', name: 'p1'
-            @p1_tank.setCoords x: 128, y: 128
+            @p1_tank.setCoords x: 8, y: 8
 
             @p2_tank = new Tanks.Tank @, color: 'blue', name: 'p2'
             @p2_tank.setCoords x: 32, y: 32
@@ -72,6 +72,26 @@ class Tanks extends Mantra.Game
           on_start: ->
             @bg_song ||= AssetManager.getBackgroundSong('tank-music')
             @bg_song.play().mute()
+
+            $em.listen 'tanks::tile_selected', this, (data) ->
+              max_movement_allowed = 4
+
+              console.log 'data', data
+              new_tile =
+                x: data.tile_selected_x
+                y: data.tile_selected_y
+
+              current_tile =
+                x: Math.floor @current_tank.x/8
+                y: Math.floor @current_tank.y/8
+
+              dist = Math.abs(current_tile.x - new_tile.x) + Math.abs(current_tile.y - new_tile.y)
+              console.log 'current_tile, new_tile', current_tile, new_tile
+              console.log 'distance', dist
+              if dist <= max_movement_allowed
+                @current_tank.x = new_tile.x * 8
+                @current_tank.y = new_tile.y * 8
+
         gameover:
           elements: (options) ->
             ui_pane = new Mantra.UIPane @
@@ -84,7 +104,7 @@ class Tanks extends Mantra.Game
           update: ->
             @state.send_event 'ready_p1' if @click
           on_keys:
-            ' ': -> @game.state.send_event 'ready_p1'            
+            ' ': -> @game.state.send_event 'ready_p1'
 
     @state.add_transition 'ready_p1',      ['started', 'game_lost', 'p2_turn', 'p1_won', 'p2_won'],
       (=>
@@ -95,6 +115,7 @@ class Tanks extends Mantra.Game
 
     @state.add_transition 'start_p1_turn', ['p1_get_ready'],
       (=>
+        @current_tank = @p1_tank
         @showScreen 'game'
         @gridder.show()
       ),
@@ -109,13 +130,25 @@ class Tanks extends Mantra.Game
 
     @state.add_transition 'start_p2_turn', ['p2_get_ready'],
       (=>
+        @current_tank = @p2_tank
         @showScreen 'game'
         @gridder.show()
       ),
       'p2_turn'
 
-    @state.add_transition 'p1_wins', ['p1_turn'],    (=> @options.process_game_over.call @, winner: 'p1'),    'p1_won'
-    @state.add_transition 'p2_wins', ['p2_turn'],    (=> @options.process_game_over.call @, winner: 'p2'),    'p2_won'
+    @state.add_transition 'p1_wins', ['p1_turn'],
+      (=>
+        @options.process_game_over.call @, winner: 'p1'
+        @gridder.hide()
+      ),
+      'p1_won'
+
+    @state.add_transition 'p2_wins', ['p2_turn'],
+      (=>
+        @options.process_game_over.call @, winner: 'p2'
+        @gridder.hide()
+      ),
+      'p2_won'
 
     @setupDOM()
 
@@ -180,12 +213,12 @@ class Tanks extends Mantra.Game
       # css
         # backgroundColor: 'red'
 
-      tile_selected_x = Math.ceil x/8
-      tile_selected_y = Math.ceil y/8
+      tile_selected_x = Math.floor x/8
+      tile_selected_y = Math.floor y/8
 
       $('label.selected').text "Tile selected: #{tile_selected_x}, #{tile_selected_y}"
 
-      $em.trigger 'tanks:tile_selected',
+      $em.trigger 'tanks::tile_selected',
         tile_selected_x: tile_selected_x,
         tile_selected_y: tile_selected_y
 

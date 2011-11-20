@@ -31,8 +31,8 @@ body.games {
     background-image: -webkit-gradient(linear, right bottom, left top, from(rgba(255, 255, 255, 0.1)), to(rgba(0, 0, 0, 0.1)));
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.75), inset -1px 0 0 #d6fcff; }
     body.games #game_holder canvas {
-      -moz-border-radius: 8px;
-      border-radius: 8px;
+/*      -moz-border-radius: 8px;*/
+/*      border-radius: 8px;*/
       background-color: black;
       margin: 0px auto;
       display: block;
