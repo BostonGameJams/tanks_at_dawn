@@ -72,6 +72,7 @@ window.onload = function() {
   function createVisibilityMap( heightmap, tankX, tankY ) {
     var visibilityMap = ctx.createImageData( heightmap.width, heightmap.height );
     var pix = visibilityMap.data;
+
     for ( var i = 0; i < heightmap.width; ++i ) {
       for ( var j = 0; j < heightmap.height; ++j ) {
         pix[ 4 * ( j * visibilityMap.width + i ) + 3 ] = isTargetVisible( heightmap, tankX, tankY, i, j ) ? 0 : 255;
@@ -81,11 +82,67 @@ window.onload = function() {
     return visibilityMap;
   }
 
+  function isSunVisible( heightmap, i, j, sunVec ) {
+    var
+      startZ = heightmap.data[ 4 * ( j * heightmap.width + i ) ] + 1,
+      sx = sunVec.x > 0 ? 1 : -1,
+      sy = sunVec.y > 0 ? 1 : -1,
+      maxX = sx * 0.5 / sunVec.x,
+      maxY = sy * 0.5 / sunVec.y,
+      dx = Math.abs( 1 / sunVec.x ),
+      dy = Math.abs( 1 / sunVec.y ),
+      t = 0;
+
+    while ( i >= 0 && i < heightmap.width && j >= 0 && j < heightmap.height ) {
+      var
+        pointHeight = heightmap.data[ 4 * ( j * heightmap.width + i ) ],
+        lineHeight = startZ + sunVec.z * t;
+
+      // alert(
+      //   't: ' + t + "\n"
+      //     + '(' + i + ', ' + j + ', ' + pointHeight + ")\n"
+      //     + '(' + ( i + sunVec.x * t ) + ', ' + ( j + sunVec.y * t ) + ', ' + lineHeight + ')'
+      // );
+
+      if ( pointHeight > lineHeight ) {
+        return false;
+      }
+
+      if ( maxX < maxY ) {
+        t = maxX;
+        maxX += dx;
+        i += sx;
+      } else {
+        t = maxY;
+        maxY += dy;
+        j += sy;
+      }
+    }
+
+    return true;
+  }
+
+  function createShadowMap( heightmap, sunVec ) {
+    var shadowMap = ctx.createImageData( heightmap.width, heightmap.height );
+    var pix = shadowMap.data;
+
+    for ( var i = 0; i < heightmap.width; ++i ) {
+      for ( var j = 0; j < heightmap.height; ++j ) {
+        pix[ 4 * ( j * shadowMap.width + i ) + 3 ] = isSunVisible( heightmap, i, j, sunVec ) ? 0 : 192;
+      }
+    }
+
+    return shadowMap;
+  }
+
   var canvas = el( 'input-canvas' );
   var ctx = canvas.getContext( '2d' );
 
   var outputCanvas = el( 'output-canvas' );
   var outputCtx = outputCanvas.getContext( '2d' );
+
+  var shadowCanvas = el( 'shadow-canvas' );
+  var shadowCtx = shadowCanvas.getContext( '2d' );
 
   var heightmap;
   var reticule = ctx.createImageData( 3, 3 );
@@ -99,6 +156,9 @@ window.onload = function() {
     ctx.drawImage( img, 0, 0 );
 
     heightmap = ctx.getImageData( 0, 0, 256, 256 );
+
+    var shadowMap = createShadowMap( heightmap, { x: -0.3, y: -0.3, z: 0.5 } );
+    shadowCtx.putImageData( shadowMap, 0, 0 );
 
     canvas.addEventListener( 'click', function( e ) {
       var x, y;
