@@ -1,0 +1,17 @@
+Import('env')
+
+env = env.Clone()
+
+compiled_files = [
+    env.Uglify('map-generation'),
+    ]
+
+static_files = [
+    'map-generation.js',
+    'map-generation.html',
+    'style.css',
+    'heightmap.png',
+    ]
+
+env.Install(env['EXPORTDIR'], static_files)
+env.Install(env['EXPORTDIR'], compiled_files)
