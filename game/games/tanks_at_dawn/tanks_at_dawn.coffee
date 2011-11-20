@@ -76,7 +76,6 @@ class Tanks extends Mantra.Game
             if @first_init
               @first_init = false
               $em.listen 'tanks::tile_selected', this, (data) ->
-                console.log 'sleected!!', @current_tank.name
                 if @state.current_state.match(/_turn/)
                   if @moveEm data
                     @state.send_event "start_#{@current_tank.name}_shoot_round"
@@ -86,7 +85,13 @@ class Tanks extends Mantra.Game
                     @state.send_event "ready_#{other_name}"
                 else if @state.current_state.match(/shoot/)
                   console.log 'pew pew'
-                  @state.send_event "start_#{@current_tank.name}_after_move"
+                  other_tank = _.without([@p1_tank, @p2_tank], @current_tank)[0]
+                  other_tank_tile = other_tank.currentTile()
+                  other_name = _.without(['p1', 'p2'], @current_tank.name)[0]
+                  if data.tile_selected_x == other_tank_tile.x && data.tile_selected_y == other_tank_tile.y
+                    @state.send_event "#{@current_tank.name}_wins" 
+                  else
+                    @state.send_event "start_#{@current_tank.name}_after_move"
 
         gameover:
           elements: (options) ->
@@ -165,7 +170,7 @@ class Tanks extends Mantra.Game
       'p2_after_move'
 
     @state.add_transition 'p1_wins',
-      ['p1_turn'],
+      ['p1_turn', 'p1_shoot_round'],
       (=>
         @options.process_game_over.call @, winner: 'p1'
         @gridder.hide()
@@ -173,7 +178,7 @@ class Tanks extends Mantra.Game
       'p1_won'
 
     @state.add_transition 'p2_wins',
-      ['p2_turn'],
+      ['p2_turn', 'p2_shoot_round'],
       (=>
         @options.process_game_over.call @, winner: 'p2'
         @gridder.hide()
@@ -241,8 +246,6 @@ class Tanks extends Mantra.Game
       x = e.pageX - @offsetLeft - $('#game_holder').position().left
       y = e.pageY - @offsetTop - $('#game_holder').position().top
 
-      # console.log e
-      # console.log $(e.target)
       $('.gridder .grid_square').removeClass('selected')
       $(e.target).addClass('selected')
 
@@ -251,7 +254,6 @@ class Tanks extends Mantra.Game
 
       $('label.selected').text "Tile selected: #{tile_selected_x}, #{tile_selected_y}"
 
-      console.log 'triggering...'
       $em.trigger 'tanks::tile_selected',
         tile_selected_x: tile_selected_x,
         tile_selected_y: tile_selected_y

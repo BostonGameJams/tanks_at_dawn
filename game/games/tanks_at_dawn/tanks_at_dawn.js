@@ -128,8 +128,7 @@ Tanks = (function() {
             if (this.first_init) {
               this.first_init = false;
               return $em.listen('tanks::tile_selected', this, function(data) {
-                var other_name;
-                console.log('sleected!!', this.current_tank.name);
+                var other_name, other_tank, other_tank_tile;
                 if (this.state.current_state.match(/_turn/)) {
                   if (this.moveEm(data)) {
                     return this.state.send_event("start_" + this.current_tank.name + "_shoot_round");
@@ -141,7 +140,14 @@ Tanks = (function() {
                   }
                 } else if (this.state.current_state.match(/shoot/)) {
                   console.log('pew pew');
-                  return this.state.send_event("start_" + this.current_tank.name + "_after_move");
+                  other_tank = _.without([this.p1_tank, this.p2_tank], this.current_tank)[0];
+                  other_tank_tile = other_tank.currentTile();
+                  other_name = _.without(['p1', 'p2'], this.current_tank.name)[0];
+                  if (data.tile_selected_x === other_tank_tile.x && data.tile_selected_y === other_tank_tile.y) {
+                    return this.state.send_event("" + this.current_tank.name + "_wins");
+                  } else {
+                    return this.state.send_event("start_" + this.current_tank.name + "_after_move");
+                  }
                 }
               });
             }
@@ -204,13 +210,13 @@ Tanks = (function() {
     this.state.add_transition('start_p2_after_move', ['p2_shoot_round'], (__bind(function() {
       return console.log('Starting P2 after-move round');
     }, this)), 'p2_after_move');
-    this.state.add_transition('p1_wins', ['p1_turn'], (__bind(function() {
+    this.state.add_transition('p1_wins', ['p1_turn', 'p1_shoot_round'], (__bind(function() {
       this.options.process_game_over.call(this, {
         winner: 'p1'
       });
       return this.gridder.hide();
     }, this)), 'p1_won');
-    this.state.add_transition('p2_wins', ['p2_turn'], (__bind(function() {
+    this.state.add_transition('p2_wins', ['p2_turn', 'p2_shoot_round'], (__bind(function() {
       this.options.process_game_over.call(this, {
         winner: 'p2'
       });
@@ -268,7 +274,6 @@ Tanks = (function() {
       tile_selected_x = Math.floor(x / game.tile_width);
       tile_selected_y = Math.floor(y / game.tile_width);
       $('label.selected').text("Tile selected: " + tile_selected_x + ", " + tile_selected_y);
-      console.log('triggering...');
       return $em.trigger('tanks::tile_selected', {
         tile_selected_x: tile_selected_x,
         tile_selected_y: tile_selected_y

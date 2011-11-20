@@ -12,7 +12,7 @@ class Tanks.Tank extends Mantra.Entity
 
   update: ->
     # Mantra.Controls.moveByKeys.call @ if @isMyTurn()
-    @shoot() if @game.click and @isMyTurn()
+    # @shoot() if @game.click and @isMyTurn()
 
   draw: (context) ->
     Mantra.Canvas.rectangle context,

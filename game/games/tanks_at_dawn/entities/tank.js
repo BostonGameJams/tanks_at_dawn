@@ -21,11 +21,7 @@ Tanks.Tank = (function() {
     _ref = [16, 16], this.colx = _ref[0], this.coly = _ref[1];
     _ref2 = [16, 16], this.colw = _ref2[0], this.colh = _ref2[1];
   }
-  Tank.prototype.update = function() {
-    if (this.game.click && this.isMyTurn()) {
-      return this.shoot();
-    }
-  };
+  Tank.prototype.update = function() {};
   Tank.prototype.draw = function(context) {
     Mantra.Canvas.rectangle(context, {
       x: this.x,
