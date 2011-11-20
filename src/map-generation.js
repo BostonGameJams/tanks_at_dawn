@@ -26,6 +26,8 @@ window.onload = function() {
   var sunY = parseFloat( getParameterByName( 'sunY' ) || '-0.3' );
   var sunZ = parseFloat( getParameterByName( 'sunZ' ) || '0.5' );
 
+  var heightScale = parseFloat( getParameterByName( 'heightScale' ) || '1' );
+
   // generic bresenham implementation, used only for visibility test
   function bresenhamLine( x0, y0, x1, y1 ) {
     var
@@ -176,11 +178,81 @@ window.onload = function() {
     return shadowMap;
   }
 
+  function cross( a, b ) {
+    return {
+      x: a.y * b.z - a.z * b.y,
+      y: a.z * b.x - a.x * b.z,
+      z: a.x * b.y - a.y * b.x
+    };
+  }
+
+  function normalize( v ) {
+    var length = Math.sqrt( v.x * v.x + v.y * v.y + v.z * v.z );
+    var invLenth = 1 / length;
+    return {
+      x: v.x * invLenth,
+      y: v.y * invLenth,
+      z: v.z * invLenth
+    };
+  }
+
+  function createNormalMap( heightmap ) {
+    var
+      startTime = Date.now(),
+      normalMap = ctx.createImageData( heightmap.width, heightmap.height ),
+      pix = normalMap.data,
+      i, j;
+
+    for ( i = 0; i < heightmap.width; ++i ) {
+      for ( j = 0; j < heightmap.height; ++j ) {
+        var pixelIndex = 4 * ( j * heightmap.width + i );
+        var height = heightmap.data[ pixelIndex ];
+        var leftHeight = ( i === 0 )
+          ? heightmap.data[ pixelIndex ]
+          : heightmap.data[ 4 * ( j * heightmap.width + i - 1 ) ];
+        var upHeight = ( j === 0 )
+          ? heightmap.data[ pixelIndex ]
+          : heightmap.data[ 4 * (( j - 1 ) * heightmap.width + i ) ];
+
+        var a = {
+          x: -1,
+          y: 0,
+          z: (leftHeight - height) * heightScale
+        };
+
+        var b = {
+          x: 0,
+          y: -1,
+          z: (upHeight - height) * heightScale
+        };
+
+        var axb = cross( a, b );
+        var normal = normalize( axb );
+
+        var r = normal.x * 128 + 128;
+        var g = normal.y * 128 + 128;
+        var b = normal.z * 128 + 128;
+
+        pix[ pixelIndex + 0 ] = r;
+        pix[ pixelIndex + 1 ] = g;
+        pix[ pixelIndex + 2 ] = b;
+        pix[ pixelIndex + 3 ] = 255;
+      }
+    }
+
+    el( 'normal-timing' ).innerHTML = (Date.now() - startTime) + 'ms';
+
+    return normalMap;
+  }
+
   var canvas = el( 'input-canvas' );
   var ctx = canvas.getContext( '2d' );
 
   var outputCanvas = el( 'output-canvas' );
   var outputCtx = outputCanvas.getContext( '2d' );
+
+  var normalCanvas = el ( 'normal-canvas' );
+  var normalCtx = normalCanvas.getContext( '2d' );
 
   var shadowMap;
   var shadowCanvas = el( 'shadow-canvas' );
@@ -223,6 +295,12 @@ window.onload = function() {
     ctx.drawImage( img, 0, 0 );
 
     heightmap = ctx.getImageData( 0, 0, 64, 64 );
+
+    var normalMap = createNormalMap( heightmap );
+    normalCtx.putImageData( normalMap, 0, 0 );
+
+    var normalAnchor = el( 'base64-normal' );
+    normalAnchor.href = normalCanvas.toDataURL( 'image/png' );
 
     // compute and blit the shadow map
     shadowMap = createShadowMap( heightmap, { x: sunX, y: sunY, z: sunZ } );
