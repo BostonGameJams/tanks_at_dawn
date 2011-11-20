@@ -3,20 +3,26 @@ window.onload = function() {
     return document.getElementById( id );
   }
 
+  // from stackoverflow
+  // http://stackoverflow.com/questions/901115/get-query-string-values-in-javascript
+  // no, I didn't realize there was a jquery plugin for this
   function getParameterByName( name ) {
     name = name.replace( /[\[]/, "\\\[" ).replace( /[\]]/, "\\\]" );
     var regexS = "[\\?&]" + name + "=([^&#]*)";
     var regex = new RegExp( regexS );
     var results = regex.exec( window.location.href );
     if ( results == null ) {
-      return "";
+      return '';
     } else {
       return decodeURIComponent( results[1].replace( /\+/g, ' ' ) );
     }
   }
 
+  // eyeHeight changes LOS and shadow calculations by a certain offset off
+  // the ground. Larger values represent "taller" tanks.
   var eyeHeight = parseInt( getParameterByName( 'eyeHeight' ) || '1' );
 
+  // generic bresenham implementation, used only for visibility test
   function bresenhamLine( x0, y0, x1, y1 ) {
     var
       dx = Math.abs( x1 - x0 ),
@@ -47,20 +53,22 @@ window.onload = function() {
     }
   }
 
+  // for a given heightmap, returns true or false for visibility between two points
   function isTargetVisible( heightmap, tankX, tankY, targetX, targetY ) {
-    var pix = heightmap.data;
-    var tankHeight = pix[ 4 * ( tankY * heightmap.width + tankX ) ] + eyeHeight;
-    var targetHeight = pix[ 4 * ( targetY * heightmap.width + targetX ) ] + eyeHeight;
+    var
+      pix = heightmap.data,
+      tankHeight = pix[ 4 * ( tankY * heightmap.width + tankX ) ] + eyeHeight,
+      targetHeight = pix[ 4 * ( targetY * heightmap.width + targetX ) ] + eyeHeight,
 
-    var points = bresenhamLine( tankX, tankY, targetX, targetY );
-    var dH = ( targetHeight - tankHeight ) / ( points.length - 1 );
+      points = bresenhamLine( tankX, tankY, targetX, targetY ),
+      dH = ( targetHeight - tankHeight ) / ( points.length - 1 ),
+      i, pointHeight, sightHeight;
 
-    for ( var i = 1; i < points.length - 1; ++i ) {
-      var
-        // height of the terrain at the line-of-sight point
-        pointHeight = pix[ 4 * ( points[ i ].y * heightmap.width +  points[ i ].x ) ],
-        // height of the line-of-sight point
-        sightHeight = tankHeight + i * dH;
+    for ( i = 1; i < points.length - 1; ++i ) {
+      // height of the terrain at the line-of-sight point
+      pointHeight = pix[ 4 * ( points[ i ].y * heightmap.width +  points[ i ].x ) ];
+      // height of the line-of-sight point
+      sightHeight = tankHeight + i * dH;
 
       if ( pointHeight > sightHeight ) {
         return false;
@@ -71,30 +79,39 @@ window.onload = function() {
   }
 
   function createVisibilityMap( heightmap, tankX, tankY ) {
-    var old = Date.now();
+    var
+      startTime = Date.now(),
+      shadowMap = arguments[3],
+      visibilityMap = ctx.createImageData( heightmap.width, heightmap.height ),
+      pix = visibilityMap.data,
+      i, j, pixelIndex;
 
-    var shadowMap = arguments[3];
-    var visibilityMap = ctx.createImageData( heightmap.width, heightmap.height );
-    var pix = visibilityMap.data;
+    for ( i = 0; i < heightmap.width; ++i ) {
+      for ( j = 0; j < heightmap.height; ++j ) {
+        pixelIndex = 4 * ( j * heightmap.width + i ) + 3;
 
-    for ( var i = 0; i < heightmap.width; ++i ) {
-      for ( var j = 0; j < heightmap.height; ++j ) {
-        if ( !shadowMap || shadowMap.data[ 4 * ( j * shadowMap.width + i ) + 3 ] === 0 ) {
-          pix[ 4 * ( j * visibilityMap.width + i ) + 3 ] = isTargetVisible( heightmap, tankX, tankY, i, j ) ? 0 : 255;
-        } else {
-          pix[ 4 * ( j * visibilityMap.width + i ) + 3 ] = 255;
+        // default behavior is to calculate visibility on all pixels
+        if ( shadowMap == null || shadowMap.data[ pixelIndex ] === 0 ) {
+          pix[ pixelIndex ] = isTargetVisible( heightmap, tankX, tankY, i, j ) ? 0 : 255;
+        }
+
+        // if a shadow map is given, ignore places in shadow
+        else {
+          pix[ pixelIndex ] = 255;
         }
       }
     }
 
-    el( 'output-timing' ).innerHTML = (Date.now() - old) + 'ms';
+    el( 'output-timing' ).innerHTML = (Date.now() - startTime) + 'ms';
 
     return visibilityMap;
   }
 
+  // using a voxel ray-traversal technique from
+  // Amanatides, John. A Fast Voxel Traversal Algorithm for Ray Tracing
   function isSunVisible( heightmap, i, j, sunVec ) {
     var
-      startZ = heightmap.data[ 4 * ( j * heightmap.width + i ) ] + 1,
+      startZ = heightmap.data[ 4 * ( j * heightmap.width + i ) ] + eyeHeight,
       sx = sunVec.x > 0 ? 1 : -1,
       sy = sunVec.y > 0 ? 1 : -1,
       maxX = sx * 0.5 / sunVec.x,
@@ -118,7 +135,8 @@ window.onload = function() {
         return false;
       }
 
-      if ( lineHeight > 256 ) {
+      // pixel values will only ever be 0 to 255
+      if ( lineHeight > 255 ) {
         return true;
       }
 
@@ -137,18 +155,19 @@ window.onload = function() {
   }
 
   function createShadowMap( heightmap, sunVec ) {
-    var old = Date.now();
+    var
+      startTime = Date.now(),
+      shadowMap = ctx.createImageData( heightmap.width, heightmap.height ),
+      pix = shadowMap.data,
+      i, j;
 
-    var shadowMap = ctx.createImageData( heightmap.width, heightmap.height );
-    var pix = shadowMap.data;
-
-    for ( var i = 0; i < heightmap.width; ++i ) {
-      for ( var j = 0; j < heightmap.height; ++j ) {
+    for ( i = 0; i < heightmap.width; ++i ) {
+      for ( j = 0; j < heightmap.height; ++j ) {
         pix[ 4 * ( j * shadowMap.width + i ) + 3 ] = isSunVisible( heightmap, i, j, sunVec ) ? 0 : 192;
       }
     }
 
-    el( 'shadow-timing' ).innerHTML = (Date.now() - old) + 'ms';
+    el( 'shadow-timing' ).innerHTML = (Date.now() - startTime) + 'ms';
 
     return shadowMap;
   }
@@ -171,16 +190,22 @@ window.onload = function() {
 
   var img = new Image();
   img.onload = function() {
+    // draw the initial heightmap image
     ctx.drawImage( img, 0, 0 );
 
     heightmap = ctx.getImageData( 0, 0, 256, 256 );
 
+    // compute and blit the shadow map
     var shadowMap = createShadowMap( heightmap, { x: -0.3, y: -0.3, z: 0.5 } );
     shadowCtx.putImageData( shadowMap, 0, 0 );
+
+    // link the shadow map
     var shadowAnchor = el( 'base64-shadow' );
     shadowAnchor.href = shadowCanvas.toDataURL( 'image/png' );
 
+    // specify a position on the heightmap to perform visibility calculations
     canvas.addEventListener( 'click', function( e ) {
+      // some click code stolen from some mozilla tutorial
       var x, y;
       if ( e.pageX || e.pageY ) {
         x = e.pageX;
@@ -193,11 +218,15 @@ window.onload = function() {
       x -= canvas.offsetLeft;
       y -= canvas.offsetTop;
 
+      // draw the red dot where we clicked
       ctx.drawImage( img, 0, 0 );
       ctx.putImageData( reticule, x - 1, y - 1 );
 
+      // compute and blit the visibility map
       var visibilityMap = createVisibilityMap( heightmap, x, y, shadowMap );
       outputCtx.putImageData( visibilityMap, 0, 0 );
+
+      // link the visibility map
       var outputAnchor = el( 'base64-output' );
       outputAnchor.href = outputCanvas.toDataURL( 'image/png' );
       outputCtx.putImageData( reticule, x - 1, y - 1 );

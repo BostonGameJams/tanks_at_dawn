@@ -15,7 +15,5 @@ env = Environment(
     EXPORTDIR = '#export'
     )
 
-env.PrependENVPath('NODE_PATH', '~/.node_libraries')
-
 Export('env')
 SConscript('src/SConscript', variant_dir = 'build', duplicate = 0)
