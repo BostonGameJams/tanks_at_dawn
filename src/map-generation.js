@@ -1,6 +1,6 @@
 window.onload = function() {
   function el( id ) {
-      return document.getElementById( id );
+    return document.getElementById( id );
   }
 
   function getParameterByName( name ) {
@@ -14,6 +14,8 @@ window.onload = function() {
       return decodeURIComponent( results[1].replace( /\+/g, ' ' ) );
     }
   }
+
+  var eyeHeight = parseInt( getParameterByName( 'eyeHeight' ) || '1' );
 
   function bresenhamLine( x0, y0, x1, y1 ) {
     var
@@ -46,7 +48,6 @@ window.onload = function() {
   }
 
   function isTargetVisible( heightmap, tankX, tankY, targetX, targetY ) {
-    var eyeHeight = parseInt( getParameterByName( 'eyeHeight' ) || '1' );
     var pix = heightmap.data;
     var tankHeight = pix[ 4 * ( tankY * heightmap.width + tankX ) ] + eyeHeight;
     var targetHeight = pix[ 4 * ( targetY * heightmap.width + targetX ) ] + eyeHeight;
