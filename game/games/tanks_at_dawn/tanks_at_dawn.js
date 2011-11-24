@@ -254,7 +254,7 @@
       pixel_height = 512;
       grid_width = 32;
       grid_height = 32;
-      this.gridder = $('<div class="gridder">').appendTo('#game_holder').hide();
+      this.gridder = $('<div id="gridder" class="gridder">').appendTo('#game_holder').hide();
       for (i = 0; 0 <= grid_width ? i < grid_width : i > grid_width; 0 <= grid_width ? i++ : i--) {
         for (j = 0; 0 <= grid_height ? j < grid_height : j > grid_height; 0 <= grid_height ? j++ : j--) {
           $('<div class="grid_square">').appendTo(this.gridder);

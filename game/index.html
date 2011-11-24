@@ -57,13 +57,13 @@
   <script src="games/tanks_at_dawn/effects/drawn_map.js"></script>
 
   <style type="text/css" media="screen">
-    .gridder {
+    div#gridder {
       position: absolute;
       top: 15px;
       left: 15px;
     }
 
-    .gridder .grid_square {
+    div#gridder > div.grid_square {
       float: left;
 
 /*      width:  7px;*/
@@ -75,11 +75,11 @@
       border-top: 1px solid rgba(200, 200, 200, 0.3);
     }
 
-    .gridder .grid_square.selected {
+    div#gridder > div.grid_square.selected {
       background-color: rgba(255, 0, 0, 0.3);
     }
 
-    .gridder .grid_square:hover {
+    div#gridder > div.grid_square:hover {
       background-color: rgba(200, 200, 255, 0.3);
     }
   </style>

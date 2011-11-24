@@ -233,7 +233,7 @@ class Tanks extends Mantra.Game
     grid_width   = 32
     grid_height  = 32
     @gridder =
-      $('<div class="gridder">')
+      $('<div id="gridder" class="gridder">')
         .appendTo('#game_holder')
         .hide()
 
